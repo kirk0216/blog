@@ -1,0 +1,27 @@
+{%  extends 'base.html' %}
+
+{%  block header %}
+    <h1>{% block title %}{{ post['title'].title() }}{%  endblock %}</h1>
+
+    {% if g.user['id'] == post['author_id'] %}
+        <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <article class="post">
+        <header>
+            <div class="about">by {{ post['username'] }} on {{ post['created'].strftime("%Y-%m-%d") }}</div>
+        </header>
+
+        <p class="body">
+            {% for para in post['body'].split('\n') %}
+                {{ para }}
+
+                {% if not loop.last %}
+                    <br>
+                {% endif %}
+            {% endfor %}
+        </p>
+    </article>
+{% endblock %}
