@@ -11,6 +11,7 @@ def test_index(client, auth):
     auth.login()
     response = client.get('/')
     assert b'Logout' in response.data
+    assert b'href="/1/"' in response.data
     assert b'Test Title' in response.data
     assert b'by test on 2022-01-01' in response.data
     assert b'test body' in response.data
@@ -40,9 +41,13 @@ def test_author_required(app, client, auth):
 
 
 @pytest.mark.parametrize('path', ('/2/update', '/2/delete'))
-def test_exists_required(client, auth, path):
+def test_update_delete_require_post_to_exist(client, auth, path):
     auth.login()
     assert client.post(path).status_code == 404
+
+
+def test_view_requires_post_to_exist(client):
+    assert client.get('/2/').status_code == 404
 
 
 def test_create(client, auth, app):
@@ -55,6 +60,20 @@ def test_create(client, auth, app):
         db = get_db()
         count = db.execute('SELECT COUNT(id) FROM post;').fetchone()[0]
         assert count == 2
+
+
+def test_view(client, auth, app):
+    response = client.get('/1/')
+    assert b'Test Title' in response.data
+    assert b'by test on 2022-01-01' in response.data
+    assert b'test body' in response.data
+
+    auth.login()
+    response = client.get('/1/')
+    assert b'Test Title' in response.data
+    assert b'by test on 2022-01-01' in response.data
+    assert b'test body' in response.data
+    assert b'href="/1/update"' in response.data
 
 
 def test_update(client, auth, app):
