@@ -14,7 +14,7 @@
             <div class="about">by {{ post['username'] }} on {{ post['created'].strftime("%Y-%m-%d") }}</div>
         </header>
 
-        <p class="body">
+        <article class="body">
             {% for para in post['body'].split('\n') %}
                 {{ para }}
 
@@ -22,6 +22,8 @@
                     <br>
                 {% endif %}
             {% endfor %}
-        </p>
+        </article>
+
+        {% include 'comment/view.html' %}
     </article>
 {% endblock %}

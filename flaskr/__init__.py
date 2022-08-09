@@ -28,4 +28,7 @@ def create_app(test_config=None):
     app.register_blueprint(blog.bp)
     app.add_url_rule('/', endpoint='index')
 
+    from . import comment
+    app.register_blueprint(comment.bp)
+
     return app

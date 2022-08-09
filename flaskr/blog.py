@@ -3,13 +3,15 @@ from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
+from flaskr.comment import get_comments
 
 bp = Blueprint('blog', __name__)
 
 
 def get_post(post_id: int, check_author: bool = True):
     post = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username FROM post p '
+        'SELECT p.id, title, body, created, author_id, username '
+        'FROM post p '
         'JOIN user u ON p.author_id = u.id WHERE p.id = ?;',
         (post_id,)
     ).fetchone()
@@ -65,8 +67,9 @@ def create():
 @bp.route('/<int:id>/', methods=('GET',))
 def view(id: int):
     post = get_post(id, False)
+    comments = get_comments(id)
 
-    return render_template('blog/view.html', post=post)
+    return render_template('blog/view.html', post=post, comments=comments)
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))

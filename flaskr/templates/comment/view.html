@@ -1,0 +1,16 @@
+<article class="comments">
+    <header>
+        <h2>Comments ({{ comments|length }})</h2>
+    </header>
+    {% for comment in comments %}
+        <article class="comment">
+            <header>By {{ comment.username }} on <time>{{ comment.created }}</time></header>
+
+            <article class="comment-body">{{ comment.body }}</article>
+        </article>
+    {% endfor %}
+
+    {% if g.user %}
+        {% include 'comment/create.html' %}
+    {% endif %}
+</article>
