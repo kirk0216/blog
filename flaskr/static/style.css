@@ -142,3 +142,18 @@ input {
 .comment-body {
     padding:        0 10px;
 }
+
+.profile-header {
+    border-bottom:  1px solid lightslategray;
+    font-size:      0.8rem;
+    margin-left:    20px;
+}
+
+.profile-body {
+    padding:        5px 40px;
+}
+
+.profile-body article {
+    border-bottom:  1px solid lightgrey;
+    padding:        5px 0;
+}

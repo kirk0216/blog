@@ -31,4 +31,7 @@ def create_app(test_config=None):
     from . import comment
     app.register_blueprint(comment.bp)
 
+    from . import profile
+    app.register_blueprint(profile.bp)
+
     return app

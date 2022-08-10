@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}{{ user.username }}'s Profile{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <article>
+        <header class="profile-header"><h2>Posts</h2></header>
+
+        <article class="profile-body">
+            {% for post in posts %}
+                <article>
+                    <header>{{ post.title }} -&nbsp;<time>{{ post.created }}</time></header>
+                    {{ post.body|truncate(50) }}
+                </article>
+            {%  else %}
+                User does not currently have any posts.
+            {% endfor %}
+        </article>
+    </article>
+
+    <article>
+        <header class="profile-header"><h2>Comments</h2></header>
+
+        <article class="profile-body">
+            {% for comment in comments %}
+                <article class="profile-comment">
+                    <header>{{ comment.title }} -&nbsp;<time>{{ comment.created }}</time></header>
+                    {{ comment.body|truncate(50) }}
+                </article>
+            {%  else %}
+                User does not currently have any comments.
+            {% endfor %}
+        </article>
+    </article>
+{% endblock %}
