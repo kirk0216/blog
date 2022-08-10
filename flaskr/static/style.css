@@ -35,6 +35,11 @@ nav ul li {
     padding: 5px;
 }
 
+.title {
+    text-decoration:    none;
+    color:              white;
+}
+
 .content {
     padding: 5px 10px;
 }
