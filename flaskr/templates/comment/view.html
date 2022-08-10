@@ -4,9 +4,16 @@
     </header>
     {% for comment in comments %}
         <article class="comment">
-            <header>By {{ comment.username }} on <time>{{ comment.created }}</time></header>
+            <header>
+                <h3>By {{ comment.username }} on <time>{{ comment.created }}</time></h3>
+                {% if g.user['id'] == comment['author_id'] %}
+                    <form action="{{ url_for('comment.delete', post_id=post['id'], comment_id=comment['id']) }}">
+                        <input type="submit" value="Delete" class="action comment_delete">
+                    </form>
+                {% endif %}
+            </header>
 
-            <article class="comment-body">{{ comment.body }}</article>
+            <article class="comment_body">{{ comment.body }}</article>
         </article>
     {% endfor %}
 
