@@ -1,4 +1,4 @@
-from flask import (Blueprint, request, flash, g, redirect, url_for)
+from flask import (Blueprint, request, flash, g, redirect, url_for, g)
 
 from flaskr.db import get_db
 from flaskr.auth import login_required
@@ -16,6 +16,17 @@ def get_comments(post_id: int):
     ).fetchall()
 
     return comments
+
+
+def get_comment(comment_id: int):
+    comment = get_db().execute(
+        'SELECT c.id, c.author_id, c.body, c.created '
+        'FROM comment c '
+        'WHERE c.id == ?;',
+        (comment_id,)
+    ).fetchone()
+
+    return comment
 
 
 @bp.route('/<int:post_id>/create', methods=('POST',))
@@ -41,8 +52,19 @@ def create(post_id: int):
 @bp.route('/<int:post_id>/delete/<int:comment_id>', methods=('POST',))
 @login_required
 def delete(post_id: int, comment_id: int):
-    db = get_db()
-    db.execute('DELETE FROM comment WHERE id = ?;', (comment_id,))
-    db.commit()
+    comment = get_comment(comment_id)
+    error = None
+
+    if comment is None:
+        error = 'Comment with id %s does not exist.' % str(comment_id)
+    elif comment['author_id'] != g.user['id']:
+        error = 'You do not have permission to delete this comment.'
+
+    if error is None:
+        db = get_db()
+        db.execute('DELETE FROM comment WHERE id = ?;', (comment_id,))
+        db.commit()
+    else:
+        flash(error)
 
     return redirect(url_for('blog.view', id=post_id))
