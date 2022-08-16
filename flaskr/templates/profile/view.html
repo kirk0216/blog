@@ -11,7 +11,7 @@
         <article class="profile-body">
             {% for post in posts %}
                 <article>
-                    <header>{{ post.title }} -&nbsp;<time>{{ post.created }}</time></header>
+                    <header>{{ post.title.title() }} -&nbsp;<time>{{ post.created }}</time></header>
                     {{ post.body|truncate(50) }}
                 </article>
             {%  else %}
@@ -26,7 +26,7 @@
         <article class="profile-body">
             {% for comment in comments %}
                 <article class="profile-comment">
-                    <header>{{ comment.title }} -&nbsp;<time>{{ comment.created }}</time></header>
+                    <header>{{ comment.title.title() }} -&nbsp;<time>{{ comment.created }}</time></header>
                     {{ comment.body|truncate(50) }}
                 </article>
             {%  else %}
