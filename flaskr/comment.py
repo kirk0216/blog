@@ -49,9 +49,9 @@ def create(post_id: int):
     return redirect(url_for('blog.view', id=post_id))
 
 
-@bp.route('/<int:post_id>/delete/<int:comment_id>', methods=('POST',))
+@bp.route('/delete/<int:comment_id>', methods=('POST',))
 @login_required
-def delete(post_id: int, comment_id: int):
+def delete(comment_id: int):
     comment = get_comment(comment_id)
     error = None
 
