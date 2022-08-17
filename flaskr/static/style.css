@@ -132,13 +132,6 @@ input {
     padding:        3px;
 }
 
-.comment-form > input {
-    background:     lightsteelblue;
-    padding:        5px;
-    width:          100%;
-    font-size:      1rem;
-}
-
 .comment-body {
     padding:        0 10px;
 }
@@ -156,4 +149,17 @@ input {
 .profile-body article {
     border-bottom:  1px solid lightgrey;
     padding:        5px 0;
+}
+
+.flash {
+    margin:         5px 100px;
+    padding:        5px;
+    border:         1px solid grey;
+    text-align:     center;
+}
+
+.error {
+    background:     indianred;
+    border:         1px solid darkred;
+    color:          #4b1818;
 }

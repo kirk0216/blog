@@ -1,3 +1,7 @@
+const flashedMessageContainer = document.getElementById('flashed-messages-container');
+
+const flashedMessageTimeout = 3000;
+
 const commentsContainer = document.getElementById('comments-container');
 const commentsHeader = document.getElementById('comments-header');
 
@@ -16,9 +20,23 @@ submitCommentButton.addEventListener('click', ev => {
                 commentBody.value = null;
 
                 updateCommentCount();
+            } else {
+                addFlashedMessageError(result.error);
             }
         })
 });
+
+function addFlashedMessageError(message) {
+    let flashMessageElement = document.createElement("div");
+    flashMessageElement.className = "flash error";
+    flashMessageElement.innerText = message;
+
+    flashedMessageContainer.appendChild(flashMessageElement);
+
+    setTimeout(() => {
+        flashMessageElement.remove();
+    }, flashedMessageTimeout);
+}
 
 function deleteComment(comment_id) {
     let deleteURL = `/comment/delete/${comment_id}`;
@@ -31,6 +49,8 @@ function deleteComment(comment_id) {
                 commentElement.remove();
 
                 updateCommentCount();
+            } else {
+                addFlashedMessageError(result.error);
             }
         })
 }
