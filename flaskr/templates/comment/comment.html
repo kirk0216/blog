@@ -1,0 +1,11 @@
+<article id="comment-{{ comment['id'] }}" class="comment">
+    <header>
+        <h3>By {{ comment.username }} on <time>{{ comment.created }}</time></h3>
+        {% if g.user['id'] == comment['author_id'] %}
+            <button type="submit" class="action comment-delete"
+                    onclick="deleteComment({{ comment['id'] }});">Delete</button>
+        {% endif %}
+    </header>
+
+    <article class="comment-body">{{ comment.body }}</article>
+</article>
