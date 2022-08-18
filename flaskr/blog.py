@@ -44,8 +44,8 @@ def index():
 
 
 @bp.route('/create', methods=('GET', 'POST'))
-@csrf_protection
 @login_required
+@csrf_protection
 def create():
     if request.method == 'POST':
         title, body, csrf_token = get_post_details_from_form()
@@ -76,8 +76,8 @@ def view(id: int):
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
-@csrf_protection
 @login_required
+@csrf_protection
 def update(id: int):
     post = get_post(id)
 
@@ -101,8 +101,8 @@ def update(id: int):
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
-@csrf_protection
 @login_required
+@csrf_protection
 def delete(id: int):
     get_post(id)
 
