@@ -1,7 +1,7 @@
 from flask import (Blueprint, flash, g, redirect, render_template, request, url_for)
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required, is_csrf_token_valid
+from flaskr.auth import login_required, csrf_protection
 from flaskr.db import get_db
 from flaskr.comment import get_comments
 
@@ -44,14 +44,15 @@ def index():
 
 
 @bp.route('/create', methods=('GET', 'POST'))
+@csrf_protection
 @login_required
-def create():
+def create(err=None):
     if request.method == 'POST':
         title, body, csrf_token = get_post_details_from_form()
         error = None
 
-        if not is_csrf_token_valid(csrf_token):
-            error = 'CSRF token is invalid.'
+        if err is not None:
+            error = err
         elif not title:
             error = 'Title is required.'
 
@@ -77,16 +78,17 @@ def view(id: int):
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
+@csrf_protection
 @login_required
-def update(id: int):
+def update(id: int, err: str = None):
     post = get_post(id)
 
     if request.method == 'POST':
         title, body, csrf_token = get_post_details_from_form()
         error = None
 
-        if not is_csrf_token_valid(csrf_token):
-            error = 'CSRF token is invalid.'
+        if err is not None:
+            error = err
         elif not title:
             error = 'Title is required.'
 
@@ -103,14 +105,15 @@ def update(id: int):
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
+@csrf_protection
 @login_required
-def delete(id: int):
+def delete(id: int, err: str = None):
     get_post(id)
 
     csrf_token = get_form_value('csrf_token')
 
-    if not is_csrf_token_valid(csrf_token):
-        flash('CSRF token is invalid.')
+    if err is not None:
+        flash(err)
         return redirect(url_for('blog.update', id=id))
     else:
         db = get_db()

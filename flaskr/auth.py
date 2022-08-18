@@ -113,8 +113,15 @@ def login_required(view):
     return wrapped_view
 
 
-def is_csrf_token_valid(token: str) -> bool:
-    if token is None or token != session['csrf_token']:
-        return False
+def csrf_protection(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        error = None
+        token = flaskr.utils.get_form_value('csrf_token')
 
-    return True
+        if token is None or token != session['csrf_token']:
+            error = 'CSRF token is invalid.'
+
+        return view(err=error, **kwargs)
+
+    return wrapped_view
