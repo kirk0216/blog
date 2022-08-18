@@ -1,7 +1,11 @@
 import functools
+import secrets
 
+import flask
 from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
+
+import flaskr.utils
 from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -56,7 +60,10 @@ def login():
             error = 'Incorrect password.'
 
         if error is None:
+            csrf_token = session['csrf_token']
+
             session.clear()
+            session['csrf_token'] = csrf_token
             session['user_id'] = user['id']
             return redirect(url_for('index'))
 
@@ -69,6 +76,20 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+
+@bp.before_app_request
+def check_csrf_token():
+    csrf_token = session.get('csrf_token')
+
+    if csrf_token is None:
+        session.clear()
+
+        token = secrets.token_hex(32)
+
+        session['csrf_token'] = token
+    else:
+        g.csrf_token = session['csrf_token']
 
 
 @bp.before_app_request
@@ -90,3 +111,10 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
+
+def is_csrf_token_valid(token: str) -> bool:
+    if token is None or token != session['csrf_token']:
+        return False
+
+    return True

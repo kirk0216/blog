@@ -1,9 +1,11 @@
 from flask import (Blueprint, flash, g, redirect, render_template, request, url_for)
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required
+from flaskr.auth import login_required, is_csrf_token_valid
 from flaskr.db import get_db
 from flaskr.comment import get_comments
+
+from flaskr.utils import get_form_value
 
 bp = Blueprint('blog', __name__)
 
@@ -26,7 +28,7 @@ def get_post(post_id: int, check_author: bool = True):
 
 
 def get_post_details_from_form():
-    return request.form['title'], request.form['body']
+    return get_form_value('title'), get_form_value('body'), get_form_value('csrf_token')
 
 
 @bp.route('/')
@@ -45,10 +47,12 @@ def index():
 @login_required
 def create():
     if request.method == 'POST':
-        title, body = get_post_details_from_form()
+        title, body, csrf_token = get_post_details_from_form()
         error = None
 
-        if not title:
+        if not is_csrf_token_valid(csrf_token):
+            error = 'CSRF token is invalid.'
+        elif not title:
             error = 'Title is required.'
 
         if error is not None:
@@ -78,10 +82,12 @@ def update(id: int):
     post = get_post(id)
 
     if request.method == 'POST':
-        title, body = get_post_details_from_form()
+        title, body, csrf_token = get_post_details_from_form()
         error = None
 
-        if not title:
+        if not is_csrf_token_valid(csrf_token):
+            error = 'CSRF token is invalid.'
+        elif not title:
             error = 'Title is required.'
 
         if error is not None:
@@ -100,7 +106,15 @@ def update(id: int):
 @login_required
 def delete(id: int):
     get_post(id)
-    db = get_db()
-    db.execute('DELETE FROM post WHERE id = ?;', (id,))
-    db.commit()
+
+    csrf_token = get_form_value('csrf_token')
+
+    if not is_csrf_token_valid(csrf_token):
+        flash('CSRF token is invalid.')
+        return redirect(url_for('blog.update', id=id))
+    else:
+        db = get_db()
+        db.execute('DELETE FROM post WHERE id = ?;', (id,))
+        db.commit()
+
     return redirect(url_for('blog.index'))
