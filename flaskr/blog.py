@@ -46,14 +46,12 @@ def index():
 @bp.route('/create', methods=('GET', 'POST'))
 @csrf_protection
 @login_required
-def create(err=None):
+def create():
     if request.method == 'POST':
         title, body, csrf_token = get_post_details_from_form()
         error = None
 
-        if err is not None:
-            error = err
-        elif not title:
+        if not title:
             error = 'Title is required.'
 
         if error is not None:
@@ -80,16 +78,14 @@ def view(id: int):
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @csrf_protection
 @login_required
-def update(id: int, err: str = None):
+def update(id: int):
     post = get_post(id)
 
     if request.method == 'POST':
         title, body, csrf_token = get_post_details_from_form()
         error = None
 
-        if err is not None:
-            error = err
-        elif not title:
+        if not title:
             error = 'Title is required.'
 
         if error is not None:
@@ -107,17 +103,11 @@ def update(id: int, err: str = None):
 @bp.route('/<int:id>/delete', methods=('POST',))
 @csrf_protection
 @login_required
-def delete(id: int, err: str = None):
+def delete(id: int):
     get_post(id)
 
-    csrf_token = get_form_value('csrf_token')
-
-    if err is not None:
-        flash(err)
-        return redirect(url_for('blog.update', id=id))
-    else:
-        db = get_db()
-        db.execute('DELETE FROM post WHERE id = ?;', (id,))
-        db.commit()
+    db = get_db()
+    db.execute('DELETE FROM post WHERE id = ?;', (id,))
+    db.commit()
 
     return redirect(url_for('blog.index'))

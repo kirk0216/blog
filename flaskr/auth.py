@@ -2,7 +2,7 @@ import functools
 import secrets
 
 import flask
-from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for)
+from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for, abort)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import flaskr.utils
@@ -116,12 +116,39 @@ def login_required(view):
 def csrf_protection(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        error = None
-        token = flaskr.utils.get_form_value('csrf_token')
+        if 'TESTING' in flask.current_app.config and flask.current_app.config['TESTING']:
+            return view(**kwargs)
 
-        if token is None or token != session['csrf_token']:
-            error = 'CSRF token is invalid.'
+        if request.method == 'POST':
+            token = flaskr.utils.get_form_value('csrf_token')
+            error = None
 
-        return view(err=error, **kwargs)
+            config_origin = flask.current_app.config.get('ORIGIN')
+            origin = request.headers['Origin'] if 'Origin' in request.headers else None
+            referer = request.headers['Referer'] if 'Referer' in request.headers else None
+
+            # A request with the following Sec-Fetch-Site values will be allowed.
+            # https://web.dev/fetch-metadata/
+            allowed_fetch_sites = ['same-origin', 'same-site', 'none']
+
+            # Validate CSRF token
+            if token is None or token != session['csrf_token']:
+                error = 'CSRF token is invalid. ' \
+                        'Please try again. ' \
+                        'If this error continues, please contact an administrator.'
+            # Allow the request if both Origin and Referer are None
+            elif not (origin is None and referer is None):
+                # Check that one of Origin or Referer is set and matches our configured Origin
+                if (origin is not None and origin != config_origin) and \
+                        (referer is not None and referer != config_origin):
+                    abort(403)
+            elif 'Sec-Fetch-Site' in request.headers and not request.headers['Sec-Fetch-Site'] in allowed_fetch_sites:
+                abort(403)
+
+            if error is not None:
+                flash(error)
+                return redirect(url_for('index'))
+
+        return view(**kwargs)
 
     return wrapped_view
