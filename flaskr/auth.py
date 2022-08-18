@@ -116,34 +116,12 @@ def login_required(view):
 def csrf_protection(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if 'TESTING' in flask.current_app.config and flask.current_app.config['TESTING']:
-            return view(**kwargs)
-
-        if request.method == 'POST':
+        if 'TESTING' not in flask.current_app.config and request.method == 'POST':
             token = flaskr.utils.get_form_value('csrf_token')
-            error = None
+            error = validate_csrf_token(token)
 
-            config_origin = flask.current_app.config.get('ORIGIN')
-            origin = request.headers['Origin'] if 'Origin' in request.headers else None
-            referer = request.headers['Referer'] if 'Referer' in request.headers else None
-
-            # A request with the following Sec-Fetch-Site values will be allowed.
-            # https://web.dev/fetch-metadata/
-            allowed_fetch_sites = ['same-origin', 'same-site', 'none']
-
-            # Validate CSRF token
-            if token is None or token != session['csrf_token']:
-                error = 'CSRF token is invalid. ' \
-                        'Please try again. ' \
-                        'If this error continues, please contact an administrator.'
-            # Allow the request if both Origin and Referer are None
-            elif not (origin is None and referer is None):
-                # Check that one of Origin or Referer is set and matches our configured Origin
-                if (origin is not None and origin != config_origin) and \
-                        (referer is not None and referer != config_origin):
-                    abort(403)
-            elif 'Sec-Fetch-Site' in request.headers and not request.headers['Sec-Fetch-Site'] in allowed_fetch_sites:
-                abort(403)
+            validate_origin_and_referer()
+            validate_fetch_site()
 
             if error is not None:
                 flash(error)
@@ -152,3 +130,35 @@ def csrf_protection(view):
         return view(**kwargs)
 
     return wrapped_view
+
+
+def validate_csrf_token(token) -> str:
+    # Validate CSRF token
+    if token is None or token != session['csrf_token']:
+        return 'CSRF token is invalid. ' \
+                'Please try again. ' \
+                'If this error continues, please contact an administrator.'
+
+    return None
+
+
+def validate_origin_and_referer():
+    config_origin = flask.current_app.config.get('ORIGIN')
+    origin = request.headers['Origin'] if 'Origin' in request.headers else None
+    referer = request.headers['Referer'] if 'Referer' in request.headers else None
+
+    # Allow the request if both Origin and Referer are None
+    if not (origin is None and referer is None):
+        # Check that one of Origin or Referer is set and matches our configured Origin
+        if (origin is not None and origin != config_origin) and \
+                (referer is not None and referer != config_origin):
+            abort(403)
+
+
+def validate_fetch_site():
+    # A request with the following Sec-Fetch-Site values will be allowed.
+    # https://web.dev/fetch-metadata/
+    allowed_fetch_sites = ['same-origin', 'same-site', 'none']
+
+    if 'Sec-Fetch-Site' in request.headers and not request.headers['Sec-Fetch-Site'] in allowed_fetch_sites:
+        abort(403)
