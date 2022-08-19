@@ -147,8 +147,8 @@ def validate_origin_and_referer():
     origin = request.headers['Origin'] if 'Origin' in request.headers else None
     referer = request.headers['Referer'] if 'Referer' in request.headers else None
 
-    # Allow the request if both Origin and Referer are None
-    if not (origin is None and referer is None):
+    # Allow the request if both Origin and Referer are None, or if the ORIGIN config value is not set.
+    if not (config_origin is None or (origin is None and referer is None)):
         # Check that one of Origin or Referer is set and matches our configured Origin
         if (origin is not None and origin != config_origin) and \
                 (referer is not None and referer != config_origin):
