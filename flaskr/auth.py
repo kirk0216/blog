@@ -116,7 +116,7 @@ def login_required(view):
 def csrf_protection(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if 'TESTING' not in flask.current_app.config and request.method == 'POST':
+        if not flask.current_app.config.get('TESTING') and request.method == 'POST':
             token = flaskr.utils.get_form_value('csrf_token')
             error = validate_csrf_token(token)
 
