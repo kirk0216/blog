@@ -61,3 +61,6 @@ jobs:
           app-name: 'kirk0216'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A9EFDC3C0CCE44A79FDC4F094A1AA3B7 }}
+          
+      - name: Initialize database
+        run: flask --app flaskr init-db
