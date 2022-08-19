@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import click
 from flask import current_app, g
@@ -23,7 +24,14 @@ def init_db_command():
 
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(current_app.config['DATABASE'], detect_types=sqlite3.PARSE_DECLTYPES)
+        db_path = current_app.config['DATABASE']
+
+        if current_app.config['DATABASE'] != ':memory:':
+            db_path = os.path.join(current_app.instance_path, db_path)
+
+        print(db_path)
+
+        g.db = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES)
 
         g.db.row_factory = sqlite3.Row
 

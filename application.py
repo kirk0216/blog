@@ -1,2 +1,4 @@
 from flaskr import create_app
-app = create_app()
+from flaskr.config import ProductionConfig
+
+app = create_app(ProductionConfig)
