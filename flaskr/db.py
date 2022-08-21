@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import click
+import psycopg2
 from flask import current_app, g
 
 
@@ -31,10 +32,25 @@ class Database:
 class DevelopmentDatabase(Database):
     def get_connection(self):
         if self.connection is None:
-            connection_string = os.path.join(current_app.instance_path, current_app.config['DATABASE'])
+            connection_string = os.path.join(current_app.instance_path, current_app.config['DATABASE_URI'])
 
             self.connection = sqlite3.connect(connection_string, detect_types=sqlite3.PARSE_DECLTYPES)
             self.connection.row_factory = sqlite3.Row
+
+        return self.connection
+
+
+class ProductionDatabase(Database):
+    def get_connection(self):
+        if self.connection is None:
+            config = current_app.config
+
+            self.connection = psycopg2.connect(
+                host=config['DB_HOST'],
+                database=config['DB_NAME'],
+                user=config['DB_USER'],
+                password=config['DB_PASS']
+            )
 
         return self.connection
 
@@ -59,7 +75,7 @@ def init_db_command():
 
 def get_db():
     if 'db' not in g:
-        g.db = DevelopmentDatabase()
+        g.db = current_app.config['DATABASE']
 
     return g.db
 
