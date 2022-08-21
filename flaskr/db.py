@@ -42,7 +42,7 @@ class DevelopmentDatabase(Database):
 
 class ProductionDatabase(Database):
     def get_connection(self):
-        if self.connection is None:
+        if self.connection is None or self.connection.closed != 0:
             config = current_app.config
 
             self.connection = psycopg2.connect(
