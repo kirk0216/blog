@@ -41,6 +41,8 @@ class DevelopmentDatabase(Database):
 
 
 class ProductionDatabase(Database):
+    cursor = None
+
     def get_connection(self):
         if self.connection is None:
             config = current_app.config
@@ -53,6 +55,20 @@ class ProductionDatabase(Database):
             )
 
         return self.connection
+
+    def execute(self, sql, parameters=()):
+        if self.get_connection() is not None:
+            if self.cursor is None:
+                self.cursor = self.get_connection().cursor()
+
+            self.cursor.execute(sql.replace('?', '%s'), parameters)
+
+            return self.cursor
+
+    def commit(self):
+        if self.get_connection() is not None:
+            if self.cursor is not None:
+                self.cursor.commit()
 
 
 def init_app(app):
