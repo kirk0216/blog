@@ -2,6 +2,7 @@ import os
 import sqlite3
 import click
 import psycopg2
+import psycopg2.extras
 from flask import current_app, g
 
 
@@ -56,7 +57,7 @@ class ProductionDatabase(Database):
 
     def execute(self, sql, parameters=()):
         if self.get_connection() is not None:
-            cursor = self.get_connection().cursor()
+            cursor = self.get_connection().cursor(cursor_factory=psycopg2.extras.RealDictCursor)
             cursor.execute(sql.replace('?', '%s'), parameters)
 
             return cursor
