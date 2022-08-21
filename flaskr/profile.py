@@ -10,7 +10,7 @@ def get_user_profile(user_id: int):
     db = get_db()
 
     user = db.execute(
-        'SELECT u.id, u.username, u.password FROM user u WHERE id = ?;',
+        'SELECT u.id, u.username, u.password FROM "user" u WHERE id = ?;',
         (user_id,)
     ).fetchone()
 

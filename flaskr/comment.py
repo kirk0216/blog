@@ -10,7 +10,7 @@ def get_comments(post_id: int):
     comments = get_db().execute(
         'SELECT c.id, c.author_id, c.body, c.created, u.username '
         'FROM comment c '
-        'JOIN user u on c.author_id = u.id '
+        'JOIN "user" u on c.author_id = u.id '
         'WHERE c.post_id = ?;',
         (post_id,)
     ).fetchall()
@@ -22,7 +22,7 @@ def get_comment(comment_id: int):
     comment = get_db().execute(
         'SELECT c.id, c.post_id, c.author_id, c.body, c.created, u.username '
         'FROM comment c '
-        'JOIN user u ON u.id == c.author_id '
+        'JOIN "user" u ON u.id == c.author_id '
         'WHERE c.id == ?;',
         (comment_id,)
     ).fetchone()

@@ -30,7 +30,7 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    'INSERT INTO user (username, password) VALUES (?, ?);',
+                    'INSERT INTO "user" (username, password) VALUES (?, ?);',
                     (username, generate_password_hash(password))
                 )
 
@@ -52,7 +52,7 @@ def login():
         db = get_db()
         error = None
 
-        user = db.execute('SELECT * FROM user WHERE username = ?;', (username, )).fetchone()
+        user = db.execute('SELECT * FROM "user" WHERE username = ?;', (username, )).fetchone()
 
         if user is None:
             error = 'Incorrect username.'
@@ -99,7 +99,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute('SELECT * FROM user WHERE id = ?;', (user_id, )).fetchone()
+        g.user = get_db().execute('SELECT * FROM "user" WHERE id = ?;', (user_id, )).fetchone()
 
 
 def login_required(view):
