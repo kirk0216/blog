@@ -65,6 +65,11 @@ class ProductionDatabase(Database):
 
             return self.cursor
 
+    def executescript(self, script):
+        if self.get_connection() is not None:
+            self.execute(script)
+            self.commit()
+
     def commit(self):
         if self.get_connection() is not None:
             self.get_connection().commit()
