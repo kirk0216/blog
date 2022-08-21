@@ -16,7 +16,7 @@ class Database:
         if self.get_connection() is not None:
             return self.get_connection().execute(sql, parameters)
 
-    def executescript(self, script: bytes | str):
+    def executescript(self, script):
         if self.get_connection() is not None:
             return self.get_connection().executescript(script)
 
