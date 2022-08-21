@@ -67,8 +67,16 @@ class ProductionDatabase(Database):
 
     def commit(self):
         if self.get_connection() is not None:
+            self.get_connection().commit()
+            self.cursor.close()
+            self.cursor = None
+
+    def close(self):
+        if self.get_connection() is not None:
             if self.cursor is not None:
-                self.cursor.commit()
+                self.cursor.close()
+
+            self.get_connection().close()
 
 
 def init_app(app):
