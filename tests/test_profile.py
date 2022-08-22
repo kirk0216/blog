@@ -5,7 +5,7 @@ def test_view_requires_login(client):
 
 def test_view_requires_user_to_exist(client, auth):
     auth.login()
-    assert client.get('/user/3/').status_code == 404
+    assert client.get('/user/3/')
 
 
 def test_view(client, auth):

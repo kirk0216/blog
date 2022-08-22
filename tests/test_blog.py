@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import text
 
 from flaskr.db import get_db
 
@@ -28,8 +29,10 @@ def test_author_required(app, client, auth):
     # Change the post author to another user
     with app.app_context():
         db = get_db()
-        db.execute('UPDATE post SET author_id = 2 WHERE author_id = 1;')
-        db.commit()
+
+        with db.connect() as conn:
+            conn.execute(text('UPDATE post SET author_id = 2 WHERE author_id = 1;'))
+            conn.commit()
 
     auth.login()
     # Current user cannot modify another user's post
@@ -58,8 +61,10 @@ def test_create(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        count = db.execute('SELECT COUNT(id) FROM post;').fetchone()[0]
-        assert count == 2
+
+        with db.connect() as conn:
+            count = conn.execute(text('SELECT COUNT(id) FROM post;')).scalar_one()
+            assert count == 2
 
 
 def test_view(client, auth, app):
@@ -84,8 +89,10 @@ def test_update(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        post = db.execute('SELECT * FROM post WHERE id = 1;').fetchone()
-        assert post['title'] == 'updated'
+
+        with db.connect() as conn:
+            post = conn.execute(text('SELECT * FROM post WHERE id = 1;')).one()
+            assert post['title'] == 'updated'
 
 
 @pytest.mark.parametrize('path', ('/create', '/1/update'))
@@ -102,5 +109,8 @@ def test_delete(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        post = db.execute('SELECT * FROM post WHERE id = 1;').fetchone()
+
+        with db.connect() as conn:
+            post = conn.execute(text('SELECT * FROM post WHERE id = 1;')).one_or_none()
+
         assert post is None

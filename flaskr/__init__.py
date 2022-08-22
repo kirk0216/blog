@@ -1,6 +1,8 @@
 import os
 
 from flask import Flask
+
+import flaskr.config
 from flaskr.config import DevConfig
 
 

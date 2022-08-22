@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import text
 
 from flask import g, session
 from flaskr.db import get_db
@@ -14,9 +15,12 @@ def test_register(client, app):
     assert response.headers['Location'] == '/auth/login'
 
     with app.app_context():
-        assert get_db().execute(
-            "SELECT * FROM user WHERE username = 'a';"
-        ).fetchone() is not None
+        db = get_db()
+
+        with db.connect() as conn:
+            assert conn.execute(
+                text("SELECT * FROM user WHERE username = 'a';")
+            ).one_or_none() is not None
 
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (

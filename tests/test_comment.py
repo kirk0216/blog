@@ -1,3 +1,5 @@
+from sqlalchemy import text
+
 from flaskr.db import get_db
 
 
@@ -35,15 +37,20 @@ def test_comment(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        count = db.execute('SELECT COUNT(id) FROM comment WHERE body="created comment";').fetchone()[0]
+
+        with db.connect() as conn:
+            count = conn.execute(text('SELECT COUNT(id) FROM comment WHERE body="created comment";')).scalar_one()
+
         assert count == 1
 
 
 def test_delete_validation(client, auth, app):
     with app.app_context():
         db = get_db()
-        db.execute('UPDATE comment SET author_id = 2 WHERE id = 1;')
-        db.commit()
+
+        with db.connect() as conn:
+            conn.execute(text('UPDATE comment SET author_id = 2 WHERE id = 1;'))
+            conn.commit()
 
     auth.login()
     # Error message is show if comment doesn't exist
@@ -60,7 +67,10 @@ def test_delete_validation(client, auth, app):
     # Confirm that the comment was not deleted.
     with app.app_context():
         db = get_db()
-        comment = db.execute('SELECT * FROM comment WHERE id = 1;').fetchone()
+
+        with db.connect() as conn:
+            comment = conn.execute(text('SELECT * FROM comment WHERE id = 1;')).one_or_none()
+
         assert comment is not None
 
 
@@ -73,5 +83,8 @@ def test_delete(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        comment = db.execute('SELECT * FROM comment WHERE id = 2;').fetchone()
+
+        with db.connect() as conn:
+            comment = conn.execute(text('SELECT * FROM comment WHERE id = 2;')).one_or_none()
+
         assert comment is None
