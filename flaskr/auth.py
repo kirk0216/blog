@@ -2,8 +2,10 @@ import functools
 import secrets
 
 import flask
+import sqlalchemy.exc
 from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for, abort)
 from werkzeug.security import check_password_hash, generate_password_hash
+from sqlalchemy import text
 
 import flaskr.utils
 from flaskr.db import get_db
@@ -29,13 +31,14 @@ def register():
 
         if error is None:
             try:
-                db.execute(
-                    'INSERT INTO "user" (username, password) VALUES (?, ?);',
-                    (username, generate_password_hash(password))
-                )
+                with db.connect() as conn:
+                    conn.execute(
+                        text('INSERT INTO "user" (username, password) VALUES (:username, :password);'),
+                        {'username': username, 'password': generate_password_hash(password)}
+                    )
 
-                db.commit()
-            except db.IntegrityError:
+                    conn.commit()
+            except sqlalchemy.exc.IntegrityError:
                 error = f'User {username} is already registered.'
             else:
                 return redirect(url_for('auth.login'))
@@ -52,7 +55,10 @@ def login():
         db = get_db()
         error = None
 
-        user = db.execute('SELECT * FROM "user" WHERE username = ?;', (username, )).fetchone()
+        with db.connect() as conn:
+            user = conn.execute(
+                text('SELECT * FROM "user" WHERE username = :username;'), {'username': username}
+            ).one_or_none()
 
         if user is None:
             error = 'Incorrect username.'
@@ -99,7 +105,10 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute('SELECT * FROM "user" WHERE id = ?;', (user_id, )).fetchone()
+        db = get_db()
+
+        with db.connect() as conn:
+            g.user = conn.execute(text('SELECT * FROM "user" WHERE id = :id;'), {'id': user_id}).one()
 
 
 def login_required(view):

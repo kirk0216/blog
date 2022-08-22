@@ -15,11 +15,16 @@ def app():
     db_fd, db_path = tempfile.mkstemp()
 
     app = create_app(TestConfig)
-    app.config['DATABASE'] = db_path
+    app.config['DATABASE_PATH'] = db_path
 
     with app.app_context():
         init_db()
-        get_db().executescript(_data_sql)
+
+        import sqlite3
+        conn = sqlite3.connect(app.config['DATABASE_PATH'])
+        conn.executescript(_data_sql)
+        conn.commit()
+        conn.close()
 
     yield app
 
