@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Admin Panel - Edit User {{ user.username }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <article>
+        <form method="post">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="{{ user.username }}">
+            <input type="hidden" id="csrf_token" name="csrf_token" value="{{ g.csrf_token }}">
+
+            <input type="submit" value="Save Changes">
+        </form>
+    </article>
+{% endblock %}
