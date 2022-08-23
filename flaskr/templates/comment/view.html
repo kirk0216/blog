@@ -1,6 +1,6 @@
-<article id="comments-container" class="comments">
-    <header>
-        <h2 id="comments-header">Comments ({{ comments|length }})</h2>
+<article id="comments-container" class="my-2">
+    <header class="flex-row">
+        <h2 id="comments-header" class="border-bottom pb-2">Comments ({{ comments|length }})</h2>
     </header>
     {% for comment in comments %}
         {% include 'comment/comment.html' %}

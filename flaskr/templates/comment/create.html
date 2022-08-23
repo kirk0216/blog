@@ -1,6 +1,6 @@
-<div id="comment-form" class="comment-form">
-    <label for="body">Comment</label>
-    <textarea id="body" name="body">{{ request.form['body'] }}</textarea>
+<div id="comment-form" class="row my-3">
+    <label for="body" class="form-label">Comment</label>
+    <textarea id="body" name="body" class="form-control">{{ request.form['body'] }}</textarea>
 
-    <button id="submit-comment" class="save-button" type="submit">Submit</button>
+    <button id="submit-comment" class="btn btn-primary my-3" type="submit">Submit</button>
 </div>
