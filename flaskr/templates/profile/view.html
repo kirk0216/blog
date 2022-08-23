@@ -6,13 +6,16 @@
 
 {% block content %}
     <article>
-        <header class="profile-header"><h2>Posts</h2></header>
+        <header class=""><h2>{{ user.username }}'s Posts</h2></header>
 
-        <article class="profile-body">
+        <article>
             {% for post in posts %}
-                <article>
-                    <header>{{ post.title.title() }} -&nbsp;<time>{{ post.created }}</time></header>
-                    {{ post.body|truncate(50) }}
+                <article class="my-2 p-1 border">
+                    <header class="row">
+                        <div class="col"><a href="{{ url_for('blog.view', id=post.id) }}">{{ post.title.title() }}</a></div>
+                        <div class="col text-end"><time>{{ post.created }}</time></div>
+                    </header>
+                    {{ post.body|truncate(200) }}
                 </article>
             {%  else %}
                 User does not currently have any posts.
@@ -21,12 +24,15 @@
     </article>
 
     <article>
-        <header class="profile-header"><h2>Comments</h2></header>
+        <header class=""><h2>{{ user.username }}'s Comments</h2></header>
 
-        <article class="profile-body">
+        <article>
             {% for comment in comments %}
-                <article class="profile-comment">
-                    <header>{{ comment.title.title() }} -&nbsp;<time>{{ comment.created }}</time></header>
+                <article class="my-2 p-1 border">
+                    <header class="row">
+                        <div class="col"><a href="{{ url_for('blog.view', id=comment.post_id) }}">{{ comment.title.title() }}</a></div>
+                        <div class="col text-end"><time>{{ comment.created }}</time></div>
+                    </header>
                     {{ comment.body|truncate(50) }}
                 </article>
             {%  else %}
