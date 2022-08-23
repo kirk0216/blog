@@ -5,20 +5,19 @@
 {% endblock %}
 
 {% block content %}
-    <form method="post">
-        <label for="title">Title</label>
-        <input name="title" id="title" value="{{ request.form['title'] or post['title'] }}" required>
+    <form method="post" class="row py-2">
+        <label for="title" class="form-label">Title</label>
+        <input name="title" id="title" value="{{ request.form['title'] }}" class="form-control" required>
 
-        <label for="body">Body</label>
-        <textarea name="body" id="body">{{ request.form['body'] or post['body'] }}</textarea>
+        <label for="body" class="form-label">Body</label>
+        <textarea name="body" id="body" class="form-control">{{ request.form['body'] }}</textarea>
 
         <input type="hidden" id="csrf_token" name="csrf_token" value="{{ g.csrf_token }}">
 
-        <input type="submit" value="Save">
+        <input type="submit" value="Save" class="btn btn-primary mt-3">
     </form>
-    <hr>
-    <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
+    <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post" class="row">
         <input type="hidden" id="csrf_token" name="csrf_token" value="{{ g.csrf_token }}">
-        <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+        <input class="btn btn-danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
     </form>
 {% endblock %}
