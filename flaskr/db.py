@@ -1,5 +1,7 @@
 import click
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, event
+from sqlalchemy.engine import Engine
+from sqlite3 import Connection as SqliteConnection
 
 from flask import current_app, g
 
@@ -46,3 +48,12 @@ def get_db():
 
 def close_db(e=None):
     g.pop('db', None)
+
+
+# https://stackoverflow.com/questions/2614984/sqlite-sqlalchemy-how-to-enforce-foreign-keys
+@event.listens_for(Engine, 'connect')
+def enable_sqlite_fk(connection, connection_record):
+    if isinstance(connection, SqliteConnection):
+        cursor = connection.cursor()
+        cursor.execute('PRAGMA foreign_keys=on;')
+        cursor.close()
