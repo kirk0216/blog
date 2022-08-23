@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, text
 
 from flask import current_app, g
 
-from flaskr.config import get_dev_db_uri, get_test_db_uri
+from flaskr.config import get_dev_db_uri, get_test_db_uri, get_production_db_uri
 
 
 def init_app(app):
@@ -36,7 +36,10 @@ def get_db():
         if current_app.config['TESTING']:
             g.db = create_engine(get_test_db_uri(), echo=True, future=True)
         else:
-            g.db = create_engine(get_dev_db_uri(), echo=True, future=True)
+            if current_app.config['DEBUG']:
+                g.db = create_engine(get_dev_db_uri(), echo=True, future=True)
+            else:
+                g.db = create_engine(get_production_db_uri(), echo=False, future=True)
 
     return g.db
 
