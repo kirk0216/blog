@@ -39,7 +39,7 @@ class ProductionConfig(Config):
     TEMPLATES_AUTO_RELOAD = False
     SESSION_COOKIE_SECURE = True
 
-    DATABASE_URI = 'postgres+psycopg2://%s:%s@%s/%s'
+    DATABASE_URI = 'postgresql+psycopg2://%s:%s@%s/%s'
     DB_HOST = os.environ.get('DB_HOST')
     DB_NAME = os.environ.get('DB_NAME')
     DB_USER = os.environ.get('DB_USER')
