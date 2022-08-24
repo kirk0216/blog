@@ -17,5 +17,5 @@ def test_get_production_db_uri():
     ProductionConfig.DB_USER = 'test_user'
     ProductionConfig.DB_PASS = 'password'
 
-    expected = 'postgres+psycopg2://test_user:password@localhost/test'
+    expected = 'postgresql+psycopg2://test_user:password@localhost/test'
     assert get_production_db_uri() == expected
