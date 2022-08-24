@@ -37,14 +37,13 @@ def edit_user(id: int):
             {'id': id}
         ).one_or_none()
 
-    if request.method == 'POST':
-        username = request.form['username']
-        error = None
+        if request.method == 'POST':
+            username = request.form['username']
+            error = None
 
-        if username is None or len(username) == 0:
-            error = 'Username cannot be blank.'
+            if username is None or len(username) == 0:
+                error = 'Username cannot be blank.'
 
-        with get_db().connect() as conn:
             try:
                 conn.execute(
                     text('UPDATE user SET username=:username WHERE id = :id;'),
@@ -53,11 +52,11 @@ def edit_user(id: int):
                 conn.commit()
             except sqlalchemy.exc.IntegrityError:
                 error = 'Username is already in use.'
-
-        if error is not None:
-            flash(error)
-        else:
-            return redirect(url_for('admin.list_users'))
+    
+            if error is not None:
+                flash(error)
+            else:
+                return redirect(url_for('admin.list_users'))
 
     return render_template('admin/user_edit.html', user=user)
 
