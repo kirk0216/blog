@@ -52,7 +52,7 @@ def edit_user(id: int):
                 conn.commit()
             except sqlalchemy.exc.IntegrityError:
                 error = 'Username is already in use.'
-    
+
             if error is not None:
                 flash(error)
             else:
@@ -70,7 +70,7 @@ def list_posts():
                 'SELECT p.id, p.author_id, p.created, p.title, p.body, u.username as "author" FROM post p '
                 'JOIN user u ON u.id = p.author_id;'
             )
-        )
+        ).all()
 
         return render_template('admin/post_list.html', posts=posts)
 
@@ -114,3 +114,56 @@ def edit_post(id: int):
                 return redirect(url_for('admin.list_posts'))
 
     return render_template('admin/post_edit.html', post=post)
+
+
+@bp.route('/comments')
+@login_required
+def list_comments():
+    with get_db().connect() as conn:
+        comments = conn.execute(
+            text(
+                'SELECT c.id, c.post_id, c.author_id, c.created, '
+                'u.username AS "author", p.title AS "post_title" FROM comment c '
+                'JOIN post p ON p.id = c.post_id '
+                'JOIN user u ON u.id = c.author_id;'
+            )
+        ).all()
+
+        return render_template('admin/comment_list.html', comments=comments)
+
+
+@bp.route('/comments/edit/<int:id>', methods=('GET', 'POST'))
+@login_required
+@csrf_protection
+def edit_comment(id: int):
+    with get_db().connect() as conn:
+        comment = conn.execute(
+            text(
+                'SELECT c.id, c.post_id, c.author_id, c.body FROM comment c '
+                'WHERE c.id=:id;'
+            ),
+            {'id': id}
+        ).one_or_none()
+
+        if request.method == 'POST':
+            body = utils.get_form_value('body')
+            error = None
+
+            if body is None:
+                error = 'Comment body cannot be empty.'
+            else:
+                try:
+                    conn.execute(
+                        text('UPDATE comment SET body=:body WHERE id=:id;'),
+                        {'body': body, 'id': id}
+                    )
+                    conn.commit()
+                except sqlalchemy.exc.DatabaseError:
+                    error = 'A database error occurred.'
+
+            if error is not None:
+                flash(error)
+            else:
+                return redirect(url_for('admin.list_comments'))
+
+    return render_template('admin/comment_edit.html', comment=comment)

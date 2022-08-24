@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Admin Panel - Comments{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <article>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Post</th>
+                    <th>Author</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for comment in comments %}
+                <tr>
+                    <td><a href="{{ url_for('admin.edit_comment', id=comment.id) }}">{{ comment.post_title }}</a></td>
+                    <td>{{ comment.author }}</td>
+                    <td>{{ comment.created }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </article>
+{% endblock %}
