@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, request, flash
 from sqlalchemy import text
 
 from . import bp
-from flaskr.auth import login_required, csrf_protection
+from flaskr.auth import login_required, csrf_protection, admin_required
 from flaskr.db import get_db
 from flaskr import utils
 
@@ -12,12 +12,14 @@ sections = ['users', 'posts', 'comments']
 
 @bp.route('/')
 @login_required
+@admin_required
 def index():
     return render_template('admin/index.html', sections=sections)
 
 
 @bp.route('/users')
 @login_required
+@admin_required
 def list_users():
     with get_db().connect() as conn:
         users = conn.execute(
@@ -29,6 +31,7 @@ def list_users():
 
 @bp.route('/users/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
+@admin_required
 @csrf_protection
 def edit_user(id: int):
     with get_db().connect() as conn:
@@ -63,6 +66,7 @@ def edit_user(id: int):
 
 @bp.route('/posts')
 @login_required
+@admin_required
 def list_posts():
     with get_db().connect() as conn:
         posts = conn.execute(
@@ -77,6 +81,7 @@ def list_posts():
 
 @bp.route('/posts/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
+@admin_required
 @csrf_protection
 def edit_post(id: int):
     with get_db().connect() as conn:
@@ -118,6 +123,7 @@ def edit_post(id: int):
 
 @bp.route('/comments')
 @login_required
+@admin_required
 def list_comments():
     with get_db().connect() as conn:
         comments = conn.execute(
@@ -134,6 +140,7 @@ def list_comments():
 
 @bp.route('/comments/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
+@admin_required
 @csrf_protection
 def edit_comment(id: int):
     with get_db().connect() as conn:

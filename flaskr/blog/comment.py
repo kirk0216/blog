@@ -2,7 +2,7 @@ from flask import (Blueprint, render_template, request, flash, g, redirect, url_
 from sqlalchemy import text
 
 from flaskr.db import get_db
-from flaskr.auth import login_required
+from flaskr.auth import login_required, can_comment_required
 
 bp = Blueprint('comment', __name__, url_prefix='/comment')
 
@@ -43,6 +43,7 @@ def get_comment(comment_id: int):
 
 @bp.route('/<int:post_id>/create', methods=('POST',))
 @login_required
+@can_comment_required
 def create(post_id: int):
     body = request.form['body']
     error = None
@@ -71,6 +72,7 @@ def create(post_id: int):
 
 @bp.route('/delete/<int:comment_id>', methods=('POST',))
 @login_required
+@can_comment_required
 def delete(comment_id: int):
     comment = get_comment(comment_id)
     error = None

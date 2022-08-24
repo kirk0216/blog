@@ -8,6 +8,7 @@ from sqlalchemy import text
 from flaskr.db import get_db
 
 from . import bp
+from .models import GROUPS
 
 
 def get_user_details_from_form():
@@ -101,8 +102,10 @@ def load_logged_in_user():
 
     if user_id is None:
         g.user = None
+        g.user_group = GROUPS['DEFAULT']
     else:
         db = get_db()
 
         with db.connect() as conn:
             g.user = conn.execute(text('SELECT * FROM "user" WHERE id = :id;'), {'id': user_id}).one()
+            g.user_group = GROUPS[g.user['group']]

@@ -2,6 +2,8 @@ import pytest
 from sqlalchemy import text
 
 from flask import g, session
+
+import flaskr.auth.models
 from flaskr.db import get_db
 
 
@@ -18,15 +20,18 @@ def test_register(client, app):
         db = get_db()
 
         with db.connect() as conn:
-            assert conn.execute(
+            user = conn.execute(
                 text("SELECT * FROM user WHERE username = 'a';")
-            ).one_or_none() is not None
+            ).one_or_none()
+
+            assert user is not None
+            assert user['group'] == 'READER'
 
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (
-     ('', '', b'Username is required.'),
-     ('a', '', b'Password is required.'),
-     ('test', 'test', b'is already registered.')
+        ('', '', b'Username is required.'),
+        ('a', '', b'Password is required.'),
+        ('test', 'test', b'is already registered.')
 ))
 def test_register_validate_input(client, username, password, message):
     response = client.post(
@@ -46,6 +51,7 @@ def test_login(client, auth):
         client.get('/')
         assert session['user_id'] == 1
         assert g.user['username'] == 'test'
+        assert g.user_group == flaskr.auth.models.Admin
 
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (
@@ -63,3 +69,61 @@ def test_logout(client, auth):
     with client:
         auth.logout()
         assert 'user_id' not in session
+
+
+@pytest.mark.parametrize(('group', 'expected_status_code'), (
+        ('DEFAULT', 403),
+        ('READER', 403),
+        ('AUTHOR', 403),
+        ('ADMIN', 200)
+))
+def test_admin_required(client, auth, app, group, expected_status_code):
+    with app.app_context():
+        with get_db().connect() as conn:
+            conn.execute(
+                text('UPDATE user SET `group`=:group WHERE id=1;'),
+                {'group': group}
+            )
+            conn.commit()
+
+        auth.login()
+        assert client.get('/admin/').status_code == expected_status_code
+
+
+@pytest.mark.parametrize(('group', 'expected_status_code'), (
+        ('DEFAULT', 403),
+        ('READER', 403),
+        ('AUTHOR', 200),
+        ('ADMIN', 200)
+ ))
+def test_can_post_required(client, auth, app, group, expected_status_code):
+    with app.app_context():
+        with get_db().connect() as conn:
+            conn.execute(
+                text('UPDATE user SET `group`=:group WHERE id=1;'),
+                {'group': group}
+            )
+            conn.commit()
+
+        auth.login()
+        assert client.get('/1/update').status_code == expected_status_code
+        assert client.post('/1/update', data={'title': 'update', 'body': 'updated'}, follow_redirects=True).status_code == expected_status_code
+
+
+@pytest.mark.parametrize(('group', 'expected_status_code'), (
+        ('DEFAULT', 403),
+        ('READER', 200),
+        ('AUTHOR', 200),
+        ('ADMIN', 200)
+))
+def test_can_comment_required(client, auth, app, group, expected_status_code):
+    with app.app_context():
+        with get_db().connect() as conn:
+            conn.execute(
+                text('UPDATE user SET `group`=:group WHERE id=1;'),
+                {'group': group}
+            )
+            conn.commit()
+
+        auth.login()
+        assert client.post('/comment/1/create', data={'body': 'comment'}).status_code == expected_status_code

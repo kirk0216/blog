@@ -3,7 +3,7 @@
 
     <div class="d-flex flex-row align-items-center ">
         <div class="flex-fill">By {{ comment.username }} on <time>{{ comment.created }}</time></div>
-        {% if g.user['id'] == comment['author_id'] %}
+        {% if g.user_group.CAN_COMMENT and g.user['id'] == comment['author_id'] %}
             <button type="submit" class="btn btn-danger align-content-center"
                     onclick="deleteComment({{ comment['id'] }});">Delete</button>
         {% endif %}

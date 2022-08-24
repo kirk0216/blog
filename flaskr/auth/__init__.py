@@ -3,17 +3,59 @@ from flask import Blueprint, current_app, request, redirect, url_for, flash, ses
 
 bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates')
 
-from . import routes
+from . import routes, models
 from flaskr import utils
 
 
 def login_required(view):
     @functools.wraps(view)
-    def wrapped_view(**kwargs):
+    def wrapped_view(*args, **kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))
 
-        return view(**kwargs)
+        return view(*args, **kwargs)
+
+    return wrapped_view
+
+
+def admin_required(view):
+    @functools.wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if g.user is not None:
+            group: models.UserGroup = models.GROUPS[g.user['group']]
+
+            if group.ADMIN:
+                return view(*args, **kwargs)
+
+        abort(403)
+
+    return wrapped_view
+
+
+def can_post_required(view):
+    @functools.wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if g.user is not None:
+            group: models.UserGroup = models.GROUPS[g.user['group']]
+
+            if group.CAN_POST:
+                return view(*args, **kwargs)
+
+        abort(403)
+
+    return wrapped_view
+
+
+def can_comment_required(view):
+    @functools.wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if g.user is not None:
+            group: models.UserGroup = models.GROUPS[g.user['group']]
+
+            if group.CAN_COMMENT:
+                return view(*args, **kwargs)
+
+        abort(403)
 
     return wrapped_view
 

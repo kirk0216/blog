@@ -7,7 +7,7 @@
     {% endfor %}
 </article>
 
-{% if g.user %}
+{% if g.user_group.CAN_COMMENT %}
     {% include 'comment/create.html' %}
 {% endif %}
 

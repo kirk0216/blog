@@ -2,7 +2,7 @@ from flask import (flash, g, redirect, render_template, request, url_for)
 from werkzeug.exceptions import abort
 from sqlalchemy import text
 
-from flaskr.auth import login_required, csrf_protection
+from flaskr.auth import login_required, csrf_protection, can_post_required
 from flaskr.db import get_db
 from flaskr.blog.comment import get_comments
 
@@ -50,6 +50,7 @@ def index():
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
+@can_post_required
 @csrf_protection
 def create():
     if request.method == 'POST':
@@ -86,6 +87,7 @@ def view(id: int):
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
+@can_post_required
 @csrf_protection
 def update(id: int):
     post = get_post(id)
@@ -116,6 +118,7 @@ def update(id: int):
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
+@can_post_required
 @csrf_protection
 def delete(id: int):
     get_post(id)
