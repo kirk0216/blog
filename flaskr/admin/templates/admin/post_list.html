@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Admin Panel - Posts{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <article>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for post in posts %}
+                <tr>
+                    <td><a href="{{ url_for('admin.edit_post', id=post.id) }}">{{ post.title }}</a></td>
+                    <td>{{ post.author }}</td>
+                    <td>{{ post.created }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </article>
+{% endblock %}
