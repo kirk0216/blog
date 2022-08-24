@@ -29,10 +29,10 @@ def create_app(app_config=None):
     app.register_blueprint(blog.bp)
     app.add_url_rule('/', endpoint='index')
 
-    from . import comment
+    from flaskr.blog import comment
     app.register_blueprint(comment.bp)
 
-    from . import profile
+    from flaskr.blog import profile
     app.register_blueprint(profile.bp)
 
     return app

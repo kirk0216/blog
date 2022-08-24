@@ -1,14 +1,14 @@
-from flask import (Blueprint, flash, g, redirect, render_template, request, url_for)
+from flask import (flash, g, redirect, render_template, request, url_for)
 from werkzeug.exceptions import abort
 from sqlalchemy import text
 
 from flaskr.auth import login_required, csrf_protection
 from flaskr.db import get_db
-from flaskr.comment import get_comments
+from flaskr.blog.comment import get_comments
 
 from flaskr.utils import get_form_value
 
-bp = Blueprint('blog', __name__)
+from . import bp
 
 
 def get_post(post_id: int, check_author: bool = True):
