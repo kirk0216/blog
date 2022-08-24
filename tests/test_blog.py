@@ -14,7 +14,7 @@ def test_index(client, auth):
     assert b'Logout' in response.data
     assert b'href="/1/"' in response.data
     assert b'Test Title' in response.data
-    assert b'by test on 2022-01-01' in response.data
+    assert b'by <a href="/user/1/">test</a> on 2022-01-01' in response.data
     assert b'test body' in response.data
 
 
@@ -69,13 +69,13 @@ def test_create(client, auth, app):
 def test_view(client, auth, app):
     response = client.get('/1/')
     assert b'Test Title' in response.data
-    assert b'by test on 2022-01-01' in response.data
+    assert b'by <a href="/user/1/">test</a> on 2022-01-01' in response.data
     assert b'test body' in response.data
 
     auth.login()
     response = client.get('/1/')
     assert b'Test Title' in response.data
-    assert b'by test on 2022-01-01' in response.data
+    assert b'by <a href="/user/1/">test</a> on 2022-01-01' in response.data
     assert b'test body' in response.data
     assert b'href="/1/update"' in response.data
 
