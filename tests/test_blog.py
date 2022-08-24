@@ -16,7 +16,6 @@ def test_index(client, auth):
     assert b'Test Title' in response.data
     assert b'by test on 2022-01-01' in response.data
     assert b'test body' in response.data
-    assert b'href="/1/update"' in response.data
 
 
 @pytest.mark.parametrize('path', ('/create', '/1/update', '/1/delete'))
