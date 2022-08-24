@@ -13,7 +13,7 @@
             <header>
                 <div class="d-flex flexrow">
                     <h2 class="flex-fill"><a class="link-primary" href="/{{ post['id'] }}/">{{ post['title'].title() }}</a></h2>
-                    <div class="text-muted align-self-center">by {{ post['username'] }} on {{ post['created'] }}</div>
+                    <div class="text-muted align-self-center">by <a href="{{ url_for('user.view', user_id=post['author_id']) }}">{{ post['username'] }}</a> on {{ post['created'] }}</div>
                 </div>
             </header>
 

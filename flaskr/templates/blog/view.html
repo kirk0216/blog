@@ -11,7 +11,7 @@
 {% block content %}
     <article class="post">
         <header class="mb-2">
-            <div class="text-muted ps-2">by {{ post['username'] }} on {{ post['created'] }}</div>
+            <div class="text-muted ps-2">by <a href="{{ url_for('user.view', user_id=post['author_id']) }}">{{ post['username'] }}</a> on {{ post['created'] }}</div>
         </header>
 
         <article class="body">
