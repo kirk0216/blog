@@ -18,13 +18,7 @@
             </header>
 
             <p class="body">
-                {% for para in post['body'].split('\n') %}
-                    {{ para }}
-
-                    {% if not loop.last %}
-                        <br>
-                    {% endif %}
-                {% endfor %}
+                {{ post['body']|truncate(500) }}
             </p>
         </article>
 
