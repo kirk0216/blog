@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Admin Panel{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <h2>Admin Panel</h2>
+
+    <article>
+        <h2>Manage</h2>
+        <ul>
+            <li><a href="{{ url_for('admin.list_users') }}">Users</a></li>
+        </ul>
+    </article>
+{% endblock %}

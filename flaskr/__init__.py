@@ -35,4 +35,7 @@ def create_app(app_config=None):
     from flaskr.blog import profile
     app.register_blueprint(profile.bp)
 
+    from . import admin
+    app.register_blueprint(admin.bp)
+
     return app

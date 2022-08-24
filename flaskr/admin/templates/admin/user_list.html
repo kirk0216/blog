@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Admin Panel - Users{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <article>
+        <table>
+            <tr>
+                <th>Username</th>
+            </tr>
+        {% for user in users %}
+            <tr>
+                <td><a href="{{ url_for('admin.edit_user', id=user.id) }}">{{ user.username }}</a></td>
+            </tr>
+        {% endfor %}
+        </table>
+    </article>
+{% endblock %}
