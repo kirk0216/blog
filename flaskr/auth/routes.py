@@ -1,16 +1,13 @@
-import functools
 import secrets
 
-import flask
 import sqlalchemy.exc
-from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for, abort)
+from flask import (flash, g, redirect, render_template, request, session, url_for, abort)
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import text
 
-import flaskr.utils
 from flaskr.db import get_db
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+from . import bp
 
 
 def get_user_details_from_form():
@@ -109,65 +106,3 @@ def load_logged_in_user():
 
         with db.connect() as conn:
             g.user = conn.execute(text('SELECT * FROM "user" WHERE id = :id;'), {'id': user_id}).one()
-
-
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for('auth.login'))
-
-        return view(**kwargs)
-
-    return wrapped_view
-
-
-def csrf_protection(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if not flask.current_app.config.get('TESTING') and request.method == 'POST':
-            token = flaskr.utils.get_form_value('csrf_token')
-            error = validate_csrf_token(token)
-
-            validate_origin_and_referer()
-            validate_fetch_site()
-
-            if error is not None:
-                flash(error)
-                return redirect(url_for('index'))
-
-        return view(**kwargs)
-
-    return wrapped_view
-
-
-def validate_csrf_token(token) -> str:
-    # Validate CSRF token
-    if token is None or token != session['csrf_token']:
-        return 'CSRF token is invalid. ' \
-                'Please try again. ' \
-                'If this error continues, please contact an administrator.'
-
-    return None
-
-
-def validate_origin_and_referer():
-    config_origin = flask.current_app.config.get('ORIGIN')
-    origin = request.headers['Origin'] if 'Origin' in request.headers else None
-    referer = request.headers['Referer'] if 'Referer' in request.headers else None
-
-    # Allow the request if both Origin and Referer are None, or if the ORIGIN config value is not set.
-    if not (config_origin is None or (origin is None and referer is None)):
-        # Check that one of Origin or Referer is set and matches our configured Origin
-        if (origin is not None and origin != config_origin) and \
-                (referer is not None and referer != config_origin):
-            abort(403)
-
-
-def validate_fetch_site():
-    # A request with the following Sec-Fetch-Site values will be allowed.
-    # https://web.dev/fetch-metadata/
-    allowed_fetch_sites = ['same-origin', 'same-site', 'none']
-
-    if 'Sec-Fetch-Site' in request.headers and not request.headers['Sec-Fetch-Site'] in allowed_fetch_sites:
-        abort(403)
