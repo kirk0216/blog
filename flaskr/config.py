@@ -1,4 +1,5 @@
 import os
+from urllib.parse import quote
 
 import flask
 
@@ -49,5 +50,5 @@ class ProductionConfig(Config):
 
 def get_production_db_uri():
     return ProductionConfig.DATABASE_URI % (
-        ProductionConfig.DB_USER, ProductionConfig.DB_PASS, ProductionConfig.DB_HOST, ProductionConfig.DB_NAME
+        quote(ProductionConfig.DB_USER), quote(ProductionConfig.DB_PASS), quote(ProductionConfig.DB_HOST), quote(ProductionConfig.DB_NAME)
     )
