@@ -14,7 +14,12 @@ def init_app(app):
 
 
 def init_db():
-    with current_app.open_resource('schema.sql') as f:
+    schema_filename = 'schema.production.sql'
+
+    if current_app.config['TESTING'] or current_app.config['DEBUG']:
+        schema_filename = 'schema.development.sql'
+
+    with current_app.open_resource(schema_filename) as f:
         if current_app.config['TESTING']:
             import sqlite3
             conn = sqlite3.connect(current_app.config['DATABASE_PATH'])
