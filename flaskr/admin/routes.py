@@ -101,7 +101,7 @@ def edit_post(id: int):
 
             print('%s' % title)
 
-            if None in [title, body]:
+            if None in [title, body] or len(title) == 0 or len(body) == 0:
                 error = 'Title and body cannot be empty.'
             else:
                 try:
@@ -156,7 +156,7 @@ def edit_comment(id: int):
             body = utils.get_form_value('body')
             error = None
 
-            if body is None:
+            if body is None or len(body) == 0:
                 error = 'Comment body cannot be empty.'
             else:
                 try:
