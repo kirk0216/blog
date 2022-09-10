@@ -7,7 +7,7 @@
 {% block content %}
     {% if form.errors %}
         {% import 'form-error.html' as errors %}
-        {% for element in [form.username, form.password] %}
+        {% for element in [form.username, form.password, form.email] %}
             {% for error in element.errors %}
                 {{ errors.alert(element, error) }}
             {% endfor %}
@@ -19,6 +19,9 @@
 
         {{ form.username.label }}
         {{ form.username(class_='form-control') }}
+
+        {{ form.email.label }}
+        {{ form.email(class_='form-control') }}
 
         {{ form.password.label }}
         {{ form.password(class_='form-control') }}

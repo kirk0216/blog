@@ -11,9 +11,12 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
 
+    SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+
 
 class DevConfig(Config):
     SECRET_KEY = 'dev'
+    SERVER_NAME = 'localhost:5000'
     TEMPLATES_AUTO_RELOAD = True
     EXPLAIN_TEMPLATE_LOADING = False
     DATABASE_URI = 'sqlite:///%s'

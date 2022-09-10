@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS comment;
 CREATE TABLE user (
     id INTEGER PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
+    email TEXT NOT NULL,
     password TEXT NOT NULL,
     "group" TEXT NOT NULL DEFAULT 'READER'
 );

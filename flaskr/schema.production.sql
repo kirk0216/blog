@@ -3,6 +3,7 @@ CREATE SCHEMA IF NOT EXISTS blog;
 CREATE TABLE IF NOT EXISTS blog.user (
     id SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
+    email TEXT NOT NULL,
     password TEXT NOT NULL,
     "group" TEXT NOT NULL DEFAULT 'READER'
 );
