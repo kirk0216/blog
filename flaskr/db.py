@@ -1,4 +1,5 @@
 import click
+import sqlalchemy.exc
 from sqlalchemy import create_engine, text, event
 from sqlalchemy.engine import Engine
 from sqlite3 import Connection as SqliteConnection
@@ -11,6 +12,7 @@ from flaskr.config import get_dev_db_uri, get_test_db_uri, get_production_db_uri
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(create_admin)
 
 
 def init_db():
@@ -36,6 +38,30 @@ def init_db():
 def init_db_command():
     init_db()
     click.echo('Initialized database.')
+
+
+@click.command('create-admin')
+@click.option('--username', required=True, prompt=True)
+@click.password_option(required=True)
+@click.option('--env', default='DEV')
+def create_admin(username, password, env):
+    if env == 'DEV':
+        current_app.config['DEBUG'] = True
+
+    with get_db().connect() as conn:
+        from werkzeug.security import generate_password_hash
+
+        try:
+            conn.execute(text(
+                'INSERT INTO user (username, password, "group") VALUES (:username, :password, "ADMIN");'
+            ), {'username': username, 'password': generate_password_hash(password)})
+            conn.commit()
+        except sqlalchemy.exc.IntegrityError:
+            if click.confirm(f'User "{username}" already exists. Would you like to make them an admin?', default=False):
+                conn.execute(text(
+                    'UPDATE user SET "group" = "ADMIN" WHERE username = :username;'
+                ), {'username': username})
+                conn.commit()
 
 
 def get_db():
