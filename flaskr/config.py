@@ -15,7 +15,7 @@ class Config:
 class DevConfig(Config):
     SECRET_KEY = 'dev'
     TEMPLATES_AUTO_RELOAD = True
-    EXPLAIN_TEMPLATE_LOADING = True
+    EXPLAIN_TEMPLATE_LOADING = False
     ORIGIN = 'http://localhost:5000'
     DATABASE_URI = 'sqlite:///%s'
     DATABASE_PATH = 'flaskr.sqlite'
