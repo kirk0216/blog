@@ -12,8 +12,17 @@ submitCommentButton.addEventListener('click', ev => {
     let commentData = new FormData();
     commentData.append('body', commentBody.value);
 
-    fetch(commentURL, { method: 'POST', body: commentData })
-        .then(response => response.json())
+    fetch(commentURL, {
+            method: 'POST',
+            body: commentData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            console.log(response.status)
+            return response.json()
+        })
         .then(result => {
             if (result.success) {
                 commentsContainer.insertAdjacentHTML('beforeend', result.html);
@@ -38,10 +47,15 @@ function addFlashedMessageError(message) {
     }, flashedMessageTimeout);
 }
 
-function deleteComment(comment_id) {
+function deleteComment(comment_id, csrf_token) {
     let deleteURL = `/comment/delete/${comment_id}`;
 
-    fetch(deleteURL, { method: 'POST' })
+    fetch(deleteURL, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrf_token
+            }
+        })
         .then(response => response.json())
         .then(result => {
             if (result.success) {

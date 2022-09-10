@@ -1,23 +1,32 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}Edit {{ post['title'] }}{% endblock %}</h1>
+    <h1>{% block title %}Edit {{ form.title.data }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+    {% if form.errors %}
+        {% import 'form-error.html' as errors %}
+        {% for element in [form.title, form.body] %}
+            {% for error in element.errors %}
+                {{ errors.alert(element, error) }}
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
     <form method="post" class="row py-2">
-        <label for="title" class="form-label">Title</label>
-        <input name="title" id="title" value="{{ request.form['title'] }}" class="form-control" required>
+        {{ form.title.label }}
+        {{ form.title(class_='form-control') }}
 
-        <label for="body" class="form-label">Body</label>
-        <textarea name="body" id="body" class="form-control">{{ request.form['body'] }}</textarea>
+        {{ form.body.label(class_='mt-2') }}
+        {{ form.body(class_='form-control') }}
 
-        <input type="hidden" id="csrf_token" name="csrf_token" value="{{ g.csrf_token }}">
+        {{ form.csrf_token }}
 
         <input type="submit" value="Save" class="btn btn-primary mt-3">
     </form>
-    <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post" class="row">
-        <input type="hidden" id="csrf_token" name="csrf_token" value="{{ g.csrf_token }}">
+    <form action="{{ url_for('blog.delete', id=post_id) }}" method="post" class="row">
+        {{ form.csrf_token }}
         <input class="btn btn-danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
     </form>
 {% endblock %}

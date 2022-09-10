@@ -1,4 +1,4 @@
-<div id="comment-form" class="row my-3">
+<div id="comment-form" class="row my-3" action="{{ url_for('comment.create', post_id=post['id']) }}">
     <label for="body" class="form-label">Comment</label>
     <textarea id="body" name="body" class="form-control">{{ request.form['body'] }}</textarea>
 

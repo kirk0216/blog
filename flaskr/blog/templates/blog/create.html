@@ -5,14 +5,23 @@
 {% endblock %}
 
 {% block content %}
-    <form method="post" class="row py-2">
-        <label for="title" class="form-label">Title</label>
-        <input name="title" id="title" value="{{ request.form['title'] }}" class="form-control" required>
+    {% if form.errors %}
+        {% import 'form-error.html' as errors %}
+        {% for element in [form.title, form.body] %}
+            {% for error in element.errors %}
+                {{ errors.alert(element, error) }}
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
 
-        <label for="body" class="form-label">Body</label>
-        <textarea name="body" id="body" class="form-control">{{ request.form['body'] }}</textarea>
+    <form method="post" class="row py-2" action="{{ url_for('blog.create') }}">
+        {{ form.title.label }}
+        {{ form.title(class_='form-control') }}
 
-        <input type="hidden" id="csrf_token" name="csrf_token" value="{{ g.csrf_token }}">
+        {{ form.body.label(class_='mt-2') }}
+        {{ form.body(class_='form-control') }}
+
+        {{ form.csrf_token }}
 
         <input type="submit" value="Save" class="btn btn-primary mt-3">
     </form>

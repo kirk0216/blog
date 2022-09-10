@@ -1,17 +1,27 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}Admin Panel - Edit User {{ user.username }}{% endblock %}</h1>
+    <h1>{% block title %}Admin Panel - Edit User {{ form.username.data }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
     <article>
-        <form method="post">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="{{ user.username }}">
-            <input type="hidden" id="csrf_token" name="csrf_token" value="{{ g.csrf_token }}">
+        {% if form.errors %}
+            {% import 'form-error.html' as errors %}
+            {% for element in [form.username] %}
+                {% for error in element.errors %}
+                    {{ errors.alert(element, error) }}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
 
-            <input type="submit" value="Save Changes">
+        <form method="post" accept-charset="{{ url_for('admin.edit_user', id=user_id) }}" class="row py-2">
+            {{ form.username.label }}
+            {{ form.username(class_='form-control') }}
+
+            {{ form.csrf_token }}
+
+            <input type="submit" value="Save Changes" class="btn btn-primary mt-3">
         </form>
     </article>
 {% endblock %}

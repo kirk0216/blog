@@ -1,14 +1,13 @@
-from flask import (flash, g, redirect, render_template, request, url_for)
+from flask import (g, redirect, render_template, url_for)
 from werkzeug.exceptions import abort
 from sqlalchemy import text
 
-from flaskr.auth import login_required, csrf_protection, can_post_required
+from flaskr.auth import login_required, can_post_required
 from flaskr.db import get_db
 from flaskr.blog.comment import get_comments
 
-from flaskr.utils import get_form_value
-
 from . import bp
+from .forms import BlogForm
 
 
 def get_post(post_id: int, check_author: bool = True):
@@ -31,15 +30,9 @@ def get_post(post_id: int, check_author: bool = True):
     return post
 
 
-def get_post_details_from_form():
-    return get_form_value('title'), get_form_value('body'), get_form_value('csrf_token')
-
-
 @bp.route('/')
 def index():
-    db = get_db()
-
-    with db.connect() as conn:
+    with get_db().connect() as conn:
         posts = conn.execute(
             text('SELECT p.id, title, body, created, author_id, username '
                  'FROM post p JOIN "user" u ON p.author_id = u.id ORDER BY created DESC;')
@@ -51,30 +44,20 @@ def index():
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 @can_post_required
-@csrf_protection
 def create():
-    if request.method == 'POST':
-        title, body, csrf_token = get_post_details_from_form()
-        error = None
+    form = BlogForm()
 
-        if not title:
-            error = 'Title is required.'
+    if form.validate_on_submit():
+        with get_db().connect() as conn:
+            conn.execute(
+                text('INSERT INTO post (title, body, author_id) VALUES (:title, :body, :author_id);'),
+                {'title': form.title.data, 'body': form.body.data, 'author_id': g.user['id']}
+            )
+            conn.commit()
 
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
+        return redirect(url_for('blog.index'))
 
-            with db.connect() as conn:
-                conn.execute(
-                    text('INSERT INTO post (title, body, author_id) VALUES (:title, :body, :author_id);'),
-                    {'title': title, 'body': body, 'author_id': g.user['id']}
-                )
-                conn.commit()
-
-            return redirect(url_for('blog.index'))
-
-    return render_template('blog/create.html')
+    return render_template('blog/create.html', form=form)
 
 
 @bp.route('/<int:id>/', methods=('GET',))
@@ -88,44 +71,31 @@ def view(id: int):
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 @can_post_required
-@csrf_protection
 def update(id: int):
     post = get_post(id)
 
-    if request.method == 'POST':
-        title, body, csrf_token = get_post_details_from_form()
-        error = None
+    form = BlogForm(obj=post)
 
-        if not title:
-            error = 'Title is required.'
+    if form.validate_on_submit():
+        with get_db().connect() as conn:
+            conn.execute(
+                text('UPDATE post SET title = :title, body = :body WHERE id = :post_id;'),
+                {'title': form.title.data, 'body': form.body.data, 'post_id': id}
+            )
+            conn.commit()
 
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
+        return redirect(url_for('blog.index'))
 
-            with db.connect() as conn:
-                conn.execute(
-                    text('UPDATE post SET title = :title, body = :body WHERE id = :post_id;'),
-                    {'title': title, 'body': body, 'post_id': id}
-                )
-                conn.commit()
-
-            return redirect(url_for('blog.index'))
-
-    return render_template('blog/update.html', post=post)
+    return render_template('blog/update.html', post_id=id, form=form)
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 @can_post_required
-@csrf_protection
 def delete(id: int):
     get_post(id)
 
-    db = get_db()
-
-    with db.connect() as conn:
+    with get_db().connect() as conn:
         conn.execute(text('DELETE FROM post WHERE id = :post_id;'), {'post_id': id})
         conn.commit()
 

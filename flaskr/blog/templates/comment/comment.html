@@ -5,7 +5,7 @@
         <div class="flex-fill">By {{ comment.username }} on <time>{{ comment.created }}</time></div>
         {% if g.user_group.CAN_COMMENT and g.user['id'] == comment['author_id'] %}
             <button type="submit" class="btn btn-danger align-content-center"
-                    onclick="deleteComment({{ comment['id'] }});">Delete</button>
+                    onclick="deleteComment({{ comment['id'] }}, '{{ csrf_token() }}');">Delete</button>
         {% endif %}
     </div>
 </article>

@@ -5,12 +5,23 @@
 {% endblock %}
 
 {% block content %}
-    <form class="row py-2" method="post">
-        <label for="username" class="form-label">Username</label>
-        <input name="username" id="username" class="form-control" required>
+    {% if form.errors %}
+        {% import 'form-error.html' as errors %}
+        {% for element in [form.username, form.password] %}
+            {% for error in element.errors %}
+                {{ errors.alert(element, error) }}
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
 
-        <label for="password" class="form-label">Password</label>
-        <input type="password" name="password" id="password" class="form-control" required>
+    <form class="row py-2" method="post" action="{{ url_for('auth.login') }}">
+        {{ form.csrf_token }}
+
+        {{ form.username.label }}
+        {{ form.username(class_='form-control') }}
+
+        {{ form.password.label }}
+        {{ form.password(class_='form-control') }}
 
         <input type="submit" value="Login" class="btn btn-primary mt-3">
     </form>

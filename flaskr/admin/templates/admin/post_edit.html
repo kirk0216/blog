@@ -1,23 +1,32 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}Admin Panel - Edit Post {{ post.title }}{% endblock %}</h1>
+    <h1>{% block title %}Admin Panel - Edit Post {{ form.title.data }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
     <article>
-        <form method="post" class="row py-2">
+        {% if form.errors %}
+            {% import 'form-error.html' as errors %}
+            {% for element in [form.title, form.body] %}
+                {% for error in element.errors %}
+                    {{ errors.alert(element, error) }}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="row py-2" action="{{ url_for('admin.edit_post', id=post_id) }}">
             <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" id="title" name="title" class="form-control" value="{{ post.title }}">
+                {{ form.title.label }}
+                {{ form.title(class_='form-control') }}
             </div>
 
             <div class="mb-3">
-                <label for="body" class="form-label">Body</label>
-                <textarea id="body" name="body" class="form-control" rows="8">{{ post.body }}</textarea>
+                {{ form.body.label }}
+                {{ form.body(class_='form-control', rows=10) }}
             </div>
 
-            <input type="hidden" id="csrf_token" name="csrf_token" value="{{ g.csrf_token }}">
+            {{ form.csrf_token }}
 
             <input type="submit" class="btn btn-primary" value="Save Changes">
         </form>

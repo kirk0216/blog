@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from flaskr.db import get_db
 
+
 @pytest.mark.parametrize('page', (
     '/admin/',
     '/admin/users',
@@ -44,13 +45,13 @@ def test_edit_user(client, auth, app):
 
 
 @pytest.mark.parametrize(('username', 'expected'), (
-    ('', b'Username cannot be blank.'),
+    ('', b'Username: This field is required.'),
     ('other', b'Username is already in use.')
 ))
 def test_edit_user_validate(client, auth, username, expected):
     auth.login()
 
-    response = client.post('/admin/users/edit/1', data={'username': username})
+    response = client.post('/admin/users/edit/1', data={'username': username}, follow_redirects=True)
     assert expected in response.data
 
 
@@ -68,9 +69,9 @@ def test_edit_post(client, auth, app):
 
 
 @pytest.mark.parametrize(('title', 'body', 'expected'), (
-    ('', '', b'Title and body cannot be empty.'),
-    ('', 'body', b'Title and body cannot be empty.'),
-    ('title', '', b'Title and body cannot be empty.')
+    ('', '', b'Title: This field is required.'),
+    ('', 'body', b'Title: This field is required.'),
+    ('title', '', b'Body: This field is required.')
 ))
 def test_edit_post_validate(client, auth, title, body, expected):
     auth.login()
@@ -92,7 +93,7 @@ def test_edit_comment(client, auth, app):
 
 
 @pytest.mark.parametrize(('body', 'expected'), (
-    ('', b'Comment body cannot be empty.'),
+    ('', b'Body: This field is required.'),
 ))
 def test_edit_comment_validate(client, auth, body, expected):
     auth.login()

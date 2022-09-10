@@ -28,9 +28,7 @@ def init_db():
             conn.executescript(f.read().decode('UTF-8'))
             conn.commit()
         else:
-            db = get_db()
-
-            with db.connect() as conn:
+            with get_db().connect() as conn:
                 conn.execute(text(f.read()))
 
 
@@ -57,7 +55,7 @@ def create_admin(username, password, env):
             ), {'username': username, 'password': generate_password_hash(password)})
             conn.commit()
         except sqlalchemy.exc.IntegrityError:
-            if click.confirm(f'User "{username}" already exists. Would you like to make them an admin?', default=False):
+            if click.confirm(f'User "{username}" already exists. Would you like to make them an admin?'):
                 conn.execute(text(
                     'UPDATE user SET "group" = "ADMIN" WHERE username = :username;'
                 ), {'username': username})

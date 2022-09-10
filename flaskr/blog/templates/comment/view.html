@@ -11,5 +11,8 @@
     {% include 'comment/create.html' %}
 {% endif %}
 
-<script>const commentURL = {{ url_for('comment.create', post_id=post['id'])|tojson }};</script>
+<script>
+    const commentURL = {{ url_for('comment.create', post_id=post['id'])|tojson }};
+    const csrfToken = '{{ csrf_token() }}';
+</script>
 <script src="{{ url_for('static', filename='script.js') }}"></script>

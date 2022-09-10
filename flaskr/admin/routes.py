@@ -3,9 +3,10 @@ from flask import render_template, redirect, url_for, request, flash
 from sqlalchemy import text
 
 from . import bp
-from flaskr.auth import login_required, csrf_protection, admin_required
+from flaskr.auth import login_required, admin_required
+from flaskr.auth.forms import AuthForm
+from flaskr.blog.forms import BlogForm, CommentForm
 from flaskr.db import get_db
-from flaskr import utils
 
 sections = ['users', 'posts', 'comments']
 
@@ -32,7 +33,6 @@ def list_users():
 @bp.route('/users/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
 @admin_required
-@csrf_protection
 def edit_user(id: int):
     with get_db().connect() as conn:
         user = conn.execute(
@@ -40,28 +40,22 @@ def edit_user(id: int):
             {'id': id}
         ).one_or_none()
 
-        if request.method == 'POST':
-            username = request.form['username']
-            error = None
+        form = AuthForm(obj=user)
+        del form.password
 
-            if username is None or len(username) == 0:
-                error = 'Username cannot be blank.'
-
+        if form.validate_on_submit():
             try:
                 conn.execute(
                     text('UPDATE user SET username=:username WHERE id = :id;'),
-                    {'username': username, 'id': id}
+                    {'username': form.username.data, 'id': id}
                 )
                 conn.commit()
             except sqlalchemy.exc.IntegrityError:
-                error = 'Username is already in use.'
+                flash('Username is already in use.')
 
-            if error is not None:
-                flash(error)
-            else:
-                return redirect(url_for('admin.list_users'))
+            return redirect(url_for('admin.list_users'))
 
-    return render_template('admin/user_edit.html', user=user)
+    return render_template('admin/user_edit.html', form=form, user_id=id)
 
 
 @bp.route('/posts')
@@ -82,7 +76,6 @@ def list_posts():
 @bp.route('/posts/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
 @admin_required
-@csrf_protection
 def edit_post(id: int):
     with get_db().connect() as conn:
         post = conn.execute(
@@ -94,31 +87,21 @@ def edit_post(id: int):
             {'id': id}
         ).one_or_none()
 
-        if request.method == 'POST':
-            title = utils.get_form_value('title')
-            body = utils.get_form_value('body')
-            error = None
+        form = BlogForm(obj=post)
 
-            print('%s' % title)
+        if form.validate_on_submit():
+            try:
+                conn.execute(
+                    text('UPDATE post SET title=:title, body=:body WHERE id=:id;'),
+                    {'title': form.title.data, 'body': form.body.data, 'id': id}
+                )
+                conn.commit()
+            except sqlalchemy.exc.DatabaseError:
+                flash('There was an error saving your changes.')
 
-            if None in [title, body] or len(title) == 0 or len(body) == 0:
-                error = 'Title and body cannot be empty.'
-            else:
-                try:
-                    conn.execute(
-                        text('UPDATE post SET title=:title, body=:body WHERE id=:id;'),
-                        {'title': title, 'body': body, 'id': id}
-                    )
-                    conn.commit()
-                except sqlalchemy.exc.DatabaseError:
-                    error = 'There was an error saving your changes.'
+            return redirect(url_for('admin.list_posts'))
 
-            if error is not None:
-                flash(error)
-            else:
-                return redirect(url_for('admin.list_posts'))
-
-    return render_template('admin/post_edit.html', post=post)
+    return render_template('admin/post_edit.html', form=form, post_id=id)
 
 
 @bp.route('/comments')
@@ -141,7 +124,6 @@ def list_comments():
 @bp.route('/comments/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
 @admin_required
-@csrf_protection
 def edit_comment(id: int):
     with get_db().connect() as conn:
         comment = conn.execute(
@@ -152,25 +134,18 @@ def edit_comment(id: int):
             {'id': id}
         ).one_or_none()
 
-        if request.method == 'POST':
-            body = utils.get_form_value('body')
-            error = None
+        form = CommentForm(obj=comment)
 
-            if body is None or len(body) == 0:
-                error = 'Comment body cannot be empty.'
-            else:
-                try:
-                    conn.execute(
-                        text('UPDATE comment SET body=:body WHERE id=:id;'),
-                        {'body': body, 'id': id}
-                    )
-                    conn.commit()
-                except sqlalchemy.exc.DatabaseError:
-                    error = 'A database error occurred.'
+        if form.validate_on_submit():
+            try:
+                conn.execute(
+                    text('UPDATE comment SET body=:body WHERE id=:id;'),
+                    {'body': form.body.data, 'id': id}
+                )
+                conn.commit()
+            except sqlalchemy.exc.DatabaseError:
+                flash('A database error occurred.')
 
-            if error is not None:
-                flash(error)
-            else:
-                return redirect(url_for('admin.list_comments'))
+            return redirect(url_for('admin.list_comments'))
 
-    return render_template('admin/comment_edit.html', comment=comment)
+    return render_template('admin/comment_edit.html', form=form, comment_id=id)

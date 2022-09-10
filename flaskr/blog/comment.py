@@ -8,9 +8,7 @@ bp = Blueprint('comment', __name__, url_prefix='/comment')
 
 
 def get_comments(post_id: int):
-    db = get_db()
-
-    with db.connect() as conn:
+    with get_db().connect() as conn:
         comments = conn.execute(
             text(
                 'SELECT c.id, c.author_id, c.body, c.created, u.username '
@@ -25,9 +23,7 @@ def get_comments(post_id: int):
 
 
 def get_comment(comment_id: int):
-    db = get_db()
-
-    with db.connect() as conn:
+    with get_db().connect() as conn:
         comment = conn.execute(
             text(
                 'SELECT c.id, c.post_id, c.author_id, c.body, c.created, u.username '
@@ -52,9 +48,7 @@ def create(post_id: int):
         error = 'Comment body is required.'
 
     if error is None:
-        db = get_db()
-
-        with db.connect() as conn:
+        with get_db().connect() as conn:
             result = conn.execute(
                 text('INSERT INTO comment (post_id, author_id, body) VALUES (:post_id, :author_id, :body);'),
                 {'post_id': post_id, 'author_id': g.user['id'], 'body': body}
@@ -83,9 +77,7 @@ def delete(comment_id: int):
         error = 'You do not have permission to delete this comment.'
 
     if error is None:
-        db = get_db()
-
-        with db.connect() as conn:
+        with get_db().connect() as conn:
             conn.execute(text('DELETE FROM comment WHERE id = :comment_id;'), {'comment_id': comment_id})
             conn.commit()
 
