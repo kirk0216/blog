@@ -17,8 +17,6 @@ from .decorators import login_required
 from .models import User
 from .forms import AuthForm, EditProfileForm, RegisterForm, ResetPasswordForm
 
-RESETPASSWORD_LINK_LIFETIME = 60 * 60  # 1 hour (60 seconds * 60 minutes)
-
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -121,7 +119,7 @@ def reset_password(token):
         s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'], salt='auth.password_reset')
 
         try:
-            result = s.loads(token, max_age=RESETPASSWORD_LINK_LIFETIME)
+            result = s.loads(token, max_age=current_app.config['RESETPASSWORD_LINK_LIFETIME'])
         except itsdangerous.exc.SignatureExpired:
             flash(f'Password reset link is invalid. Please submit a new request.')
             return redirect(url_for('auth.forgot_password'))

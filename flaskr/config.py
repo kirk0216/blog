@@ -19,6 +19,9 @@ class Config:
 
     SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
 
+    # RESETPASSWORD_LINK_LIFETIME = 1 hour (60 seconds * 60 minutes)
+    RESETPASSWORD_LINK_LIFETIME = 60 * 60
+
 
 class DevConfig(Config):
     SECRET_KEY = 'dev'
