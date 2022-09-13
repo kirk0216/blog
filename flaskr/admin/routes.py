@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, request, flash
 from sqlalchemy import text
 
 from . import bp
-from flaskr.auth import login_required, admin_required
+from flaskr.auth.decorators import login_required, admin_required
 from flaskr.auth.forms import AuthForm
 from flaskr.blog.forms import BlogForm, CommentForm
 from flaskr.db import get_db

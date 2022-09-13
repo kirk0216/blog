@@ -13,7 +13,8 @@ from sendgrid.helpers.mail import Mail
 from flaskr.db import get_db
 
 from . import bp
-from .models import GROUPS, User
+from .decorators import login_required
+from .models import User
 from .forms import AuthForm, RegisterForm, ResetPasswordForm
 
 RESETPASSWORD_LINK_LIFETIME = 60 * 60  # 1 hour (60 seconds * 60 minutes)

@@ -1,7 +1,7 @@
 from flask import Blueprint, abort, render_template
 from sqlalchemy import text
 
-from flaskr.auth import login_required
+from flaskr.auth.decorators import login_required
 from flaskr.db import get_db
 
 bp = Blueprint('user', __name__, url_prefix='/user')

@@ -2,7 +2,7 @@ from flask import (session, redirect, render_template, url_for)
 from werkzeug.exceptions import abort
 from sqlalchemy import text
 
-from flaskr.auth import login_required, can_post_required
+from flaskr.auth.decorators import login_required, can_post_required
 from flaskr.db import get_db
 from flaskr.blog.comment import get_comments
 

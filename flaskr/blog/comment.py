@@ -2,7 +2,7 @@ from flask import (Blueprint, render_template, request, session)
 from sqlalchemy import text
 
 from flaskr.db import get_db
-from flaskr.auth import login_required, can_comment_required
+from flaskr.auth.decorators import login_required, can_comment_required
 
 bp = Blueprint('comment', __name__, url_prefix='/comment')
 
