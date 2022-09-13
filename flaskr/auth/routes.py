@@ -15,7 +15,7 @@ from flaskr.db import get_db
 from . import bp
 from .decorators import login_required
 from .models import User
-from .forms import AuthForm, RegisterForm, ResetPasswordForm
+from .forms import AuthForm, EditProfileForm, RegisterForm, ResetPasswordForm
 
 RESETPASSWORD_LINK_LIFETIME = 60 * 60  # 1 hour (60 seconds * 60 minutes)
 
@@ -134,3 +134,21 @@ def reset_password(token):
         return redirect(url_for('auth.login'))
 
     return render_template('auth/resetpassword.html', form=form)
+
+
+@bp.route('/edit-profile', methods=('GET', 'POST'))
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+
+    if form.validate_on_submit():
+        with get_db().connect() as conn:
+            conn.execute(
+                text('UPDATE user SET email = :email, password = :password WHERE id = :id;'),
+                {'email': form.email.data, 'password': generate_password_hash(form.password.data), 'id': session['user'].id})
+            conn.commit()
+
+        flash('Profile updated!', 'alert-success')
+        return redirect(url_for('index'))
+
+    return render_template('auth/editprofile.html', form=form)

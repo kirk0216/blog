@@ -1,5 +1,6 @@
 import pytest
 from sqlalchemy import text
+from werkzeug.security import check_password_hash
 
 from flask import session
 
@@ -130,3 +131,26 @@ def test_can_comment_required(client, auth, app, group, expected_status_code):
 
         auth.login()
         assert client.post('/comment/1/create', data={'body': 'comment'}).status_code == expected_status_code
+
+
+def test_edit_profile(client, auth, app):
+    with client:
+        auth.login()
+
+        assert client.get('/auth/edit-profile').status_code == 200
+
+        response = client.post(
+            '/auth/edit-profile',
+            data={'email': 'changed@test.com', 'password': 'changed_password', 'confirm_password': 'changed_password'},
+            follow_redirects=True)
+
+        assert response.status_code == 200
+
+        with app.app_context():
+            with get_db().connect() as conn:
+                user = conn.execute(
+                    text('SELECT u.username, u.email, u.password FROM user u WHERE id = :id;'),
+                    {'id': session['user'].id}).one()
+
+                assert user['email'] == 'changed@test.com'
+                assert check_password_hash(user['password'], 'changed_password')
