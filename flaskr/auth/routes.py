@@ -3,7 +3,7 @@ import os
 import itsdangerous.exc
 import sqlalchemy.exc
 
-from flask import (flash, g, redirect, render_template, session, url_for, current_app)
+from flask import (flash, redirect, render_template, session, url_for, current_app)
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import text
 from itsdangerous import URLSafeTimedSerializer
@@ -13,7 +13,7 @@ from sendgrid.helpers.mail import Mail
 from flaskr.db import get_db
 
 from . import bp
-from .models import GROUPS
+from .models import GROUPS, User
 from .forms import AuthForm, RegisterForm, ResetPasswordForm
 
 RESETPASSWORD_LINK_LIFETIME = 60 * 60  # 1 hour (60 seconds * 60 minutes)
@@ -27,8 +27,8 @@ def register():
         try:
             with get_db().connect() as conn:
                 conn.execute(
-                    text('INSERT INTO "user" (username, password) VALUES (:username, :password);'),
-                    {'username': form.username.data, 'password': generate_password_hash(form.password.data)}
+                    text('INSERT INTO "user" (username, email, password) VALUES (:username, :email, :password);'),
+                    {'username': form.username.data, 'email': form.email.data, 'password': generate_password_hash(form.password.data)}
                 )
 
                 conn.commit()
@@ -59,7 +59,9 @@ def login():
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+
+            session['user'] = User(user)
+
             return redirect(url_for('index'))
 
         flash(error)
@@ -131,18 +133,3 @@ def reset_password(token):
         return redirect(url_for('auth.login'))
 
     return render_template('auth/resetpassword.html', form=form)
-
-
-@bp.before_app_request
-def load_logged_in_user():
-    user_id = session.get('user_id')
-
-    if user_id is None:
-        g.user = None
-        g.user_group = GROUPS['DEFAULT']
-    else:
-        db = get_db()
-
-        with db.connect() as conn:
-            g.user = conn.execute(text('SELECT * FROM "user" WHERE id = :id;'), {'id': user_id}).one()
-            g.user_group = GROUPS[g.user['group']]

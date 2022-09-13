@@ -1,4 +1,4 @@
-from flask import (Blueprint, render_template, request, flash, g, redirect, url_for, g)
+from flask import (Blueprint, render_template, request, session)
 from sqlalchemy import text
 
 from flaskr.db import get_db
@@ -51,7 +51,7 @@ def create(post_id: int):
         with get_db().connect() as conn:
             result = conn.execute(
                 text('INSERT INTO comment (post_id, author_id, body) VALUES (:post_id, :author_id, :body);'),
-                {'post_id': post_id, 'author_id': g.user['id'], 'body': body}
+                {'post_id': post_id, 'author_id': session['user'].id, 'body': body}
             )
             print(result.lastrowid)
             conn.commit()
@@ -73,7 +73,7 @@ def delete(comment_id: int):
 
     if comment is None:
         error = 'Comment with id %s does not exist.' % str(comment_id)
-    elif comment['author_id'] != g.user['id']:
+    elif comment['author_id'] != session['user'].id:
         error = 'You do not have permission to delete this comment.'
 
     if error is None:

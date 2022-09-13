@@ -17,11 +17,11 @@ def test_init_db_command(runner, monkeypatch):
     assert Recorder.called
 
 
-@pytest.mark.parametrize(('username', 'password'), (
-    ('bob', 'password'),
-    ('other', 'password')
+@pytest.mark.parametrize(('username', 'password', 'email'), (
+    ('bob', 'password', 'test@email.com'),
+    ('other', 'password', 'test@email.com')
 ))
-def test_create_admin_command(app, runner, monkeypatch, username, password):
+def test_create_admin_command(app, runner, monkeypatch, username, password, email):
     class Recorder(object):
         called = False
 
@@ -31,10 +31,8 @@ def test_create_admin_command(app, runner, monkeypatch, username, password):
     monkeypatch.setattr('flaskr.db.create_admin', fake_create_admin())
 
     with app.app_context():
-        result = runner.invoke(args=['create-admin', '--username', username, '--password', password], input='y')
+        result = runner.invoke(args=['create-admin', '--username', username, '--password', password, '--email', email], input='y')
         assert Recorder.called
-
-        print(result.output)
 
         with get_db().connect() as conn:
             user = conn.execute(

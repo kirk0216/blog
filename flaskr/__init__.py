@@ -4,19 +4,22 @@ from flask import Flask
 
 import flaskr.config
 from flaskr.config import DevConfig
+from flask_session import Session
 from flask_wtf.csrf import CSRFProtect
 
 
 def create_app(app_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
-    csrf = CSRFProtect()
-    csrf.init_app(app)
-
     if app_config is None:
         app.config.from_object(DevConfig)
     else:
         app.config.from_object(app_config)
+
+    csrf = CSRFProtect()
+    csrf.init_app(app)
+
+    Session(app)
 
     try:
         os.makedirs(app.instance_path)

@@ -3,7 +3,7 @@
 {%  block header %}
     <h1 class="flex-fill">{% block title %}{{ post['title'].title() }}{%  endblock %}</h1>
 
-    {% if g.user_group.CAN_POST and g.user['id'] == post['author_id'] %}
+    {% if session['user'] and session['user'].permissions.CAN_POST and session['user'].id == post['author_id'] %}
         <a href="{{ url_for('blog.update', id=post['id']) }}" class="btn btn-primary w-10 align-self-center">Edit</a>
     {% endif %}
 {% endblock %}

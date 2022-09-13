@@ -40,9 +40,10 @@ def init_db_command():
 
 @click.command('create-admin')
 @click.option('--username', required=True, prompt=True)
+@click.option('--email', required=True, prompt=True)
 @click.password_option(required=True)
 @click.option('--env', default='DEV')
-def create_admin(username, password, env):
+def create_admin(username, email, password, env):
     if env == 'DEV':
         current_app.config['DEBUG'] = True
 
@@ -51,8 +52,8 @@ def create_admin(username, password, env):
 
         try:
             conn.execute(text(
-                'INSERT INTO user (username, password, "group") VALUES (:username, :password, "ADMIN");'
-            ), {'username': username, 'password': generate_password_hash(password)})
+                'INSERT INTO user (username, email, password, "group") VALUES (:username, :email, :password, "ADMIN");'
+            ), {'username': username, 'password': generate_password_hash(password), 'email': email})
             conn.commit()
         except sqlalchemy.exc.IntegrityError:
             if click.confirm(f'User "{username}" already exists. Would you like to make them an admin?'):

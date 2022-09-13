@@ -7,7 +7,7 @@
     {% endfor %}
 </article>
 
-{% if g.user_group.CAN_COMMENT %}
+{% if session['user'] and session['user'].permissions.CAN_COMMENT %}
     {% include 'comment/create.html' %}
 {% endif %}
 

@@ -25,26 +25,26 @@
                     </ul>
 
                     <ul class="navbar-nav justify-content-end flex-grow-1">
-                    {% if g.user %}
+                    {% if session['user'] %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ g.user['username'] }}
+                                {{ session['user'].username }}
                             </a>
 
                             <ul class="dropdown-menu dropdown-menu-end">
-                                {% if g.user_group.CAN_POST %}
+                                {% if session['user'].permissions.CAN_POST %}
                                     <li>
                                         <a class="dropdown-item" href="{{ url_for('blog.create') }}">New Post</a>
                                     </li>
                                 {% endif %}
 
-                                {% if g.user_group.ADMIN %}
+                                {% if session['user'].permissions.ADMIN %}
                                     <li>
                                         <a class="dropdown-item" href="{{ url_for('admin.index') }}">Admin Panel</a>
                                     </li>
                                 {% endif %}
 
-                                {% if g.user_group.ADMIN or g.user_group.CAN_POST %}
+                                {% if session['user'].permissions.ADMIN or session['user'].permissions.CAN_POST %}
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>

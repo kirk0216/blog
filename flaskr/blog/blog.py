@@ -1,4 +1,4 @@
-from flask import (g, redirect, render_template, url_for)
+from flask import (session, redirect, render_template, url_for)
 from werkzeug.exceptions import abort
 from sqlalchemy import text
 
@@ -11,9 +11,7 @@ from .forms import BlogForm
 
 
 def get_post(post_id: int, check_author: bool = True):
-    db = get_db()
-
-    with db.connect() as conn:
+    with get_db().connect() as conn:
         post = conn.execute(
             text('SELECT p.id, title, body, created, author_id, username '
                  'FROM post p '
@@ -24,7 +22,7 @@ def get_post(post_id: int, check_author: bool = True):
     if post is None:
         abort(404, f'Post id {post_id} does not exist.')
 
-    if check_author and post['author_id'] != g.user['id']:
+    if check_author and post['author_id'] != session['user'].id:
         abort(403)
 
     return post
@@ -51,7 +49,7 @@ def create():
         with get_db().connect() as conn:
             conn.execute(
                 text('INSERT INTO post (title, body, author_id) VALUES (:title, :body, :author_id);'),
-                {'title': form.title.data, 'body': form.body.data, 'author_id': g.user['id']}
+                {'title': form.title.data, 'body': form.body.data, 'author_id': session['user'].id}
             )
             conn.commit()
 

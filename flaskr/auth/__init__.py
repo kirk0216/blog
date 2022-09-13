@@ -1,5 +1,5 @@
 import functools
-from flask import Blueprint, redirect, url_for, abort, g
+from flask import Blueprint, redirect, url_for, abort, session
 
 bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates')
 
@@ -9,7 +9,9 @@ from . import routes, models
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
-        if g.user is None:
+        user = session.get('user')
+
+        if user is None:
             return redirect(url_for('auth.login'))
 
         return view(*args, **kwargs)
@@ -20,10 +22,10 @@ def login_required(view):
 def admin_required(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
-        if g.user is not None:
-            group: models.UserGroup = models.GROUPS[g.user['group']]
+        user = session.get('user')
 
-            if group.ADMIN:
+        if user is not None:
+            if user.permissions.ADMIN:
                 return view(*args, **kwargs)
 
         abort(403)
@@ -34,10 +36,10 @@ def admin_required(view):
 def can_post_required(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
-        if g.user is not None:
-            group: models.UserGroup = models.GROUPS[g.user['group']]
+        user = session.get('user')
 
-            if group.CAN_POST:
+        if user is not None:
+            if session['user'].permissions.CAN_POST:
                 return view(*args, **kwargs)
 
         abort(403)
@@ -48,10 +50,10 @@ def can_post_required(view):
 def can_comment_required(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
-        if g.user is not None:
-            group: models.UserGroup = models.GROUPS[g.user['group']]
+        user = session.get('user')
 
-            if group.CAN_COMMENT:
+        if user is not None:
+            if session['user'].permissions.CAN_COMMENT:
                 return view(*args, **kwargs)
 
         abort(403)
