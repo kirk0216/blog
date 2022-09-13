@@ -90,24 +90,29 @@ def forgot_password():
                 s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'], salt='auth.password_reset')
                 token = s.dumps({'username': user['username']})
 
-                reset_link = url_for('auth.reset_password', token=token, _external=True)
-                content = f'<p>Please use the following link to reset your password.</p>' \
-                          f'<a href="{reset_link}">{reset_link}</a>'
-
-                message = Mail(
-                    from_email='no-reply@patrickkirk.ca',
-                    to_emails=user['email'],
-                    subject='Password Reset',
-                    html_content=content
-                )
-
-                try:
-                    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
-                    sg.send(message)
-                except Exception as e:
-                    print(e.message)
+                send_reset_password_email(user['email'], token)
 
     return render_template('auth/forgotpassword.html', form=form)
+
+
+def send_reset_password_email(email, token):
+    reset_link = url_for('auth.reset_password', token=token, _external=True)
+
+    content = f'<p>Please use the following link to reset your password.</p>' \
+              f'<a href="{reset_link}">{reset_link}</a>'
+
+    message = Mail(
+        from_email='no-reply@patrickkirk.ca',
+        to_emails=email,
+        subject='Password Reset',
+        html_content=content
+    )
+
+    try:
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        sg.send(message)
+    except Exception as e:
+        print(e.message)
 
 
 @bp.route('/reset-password/<string:token>', methods=('GET', 'POST'))

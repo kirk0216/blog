@@ -1,4 +1,5 @@
 import pytest
+from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import text
 from werkzeug.security import check_password_hash
 
@@ -131,6 +132,70 @@ def test_can_comment_required(client, auth, app, group, expected_status_code):
 
         auth.login()
         assert client.post('/comment/1/create', data={'body': 'comment'}).status_code == expected_status_code
+
+
+def test_forgot_password(client, app, monkeypatch):
+    class EmailReceiver:
+        email = None
+        reset_link = None
+
+    def mock_send_email(email, reset_link):
+        EmailReceiver.email = email
+        EmailReceiver.reset_link = reset_link
+
+    monkeypatch.setattr('flaskr.auth.routes.send_reset_password_email', mock_send_email)
+
+    assert client.get('/auth/forgot-password').status_code == 200
+
+    client.post('/auth/forgot-password', data={'username': 'test'})
+
+    assert EmailReceiver.email == 'test@email.com'
+    assert EmailReceiver.reset_link is not None
+
+    with app.app_context():
+        s = URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='auth.password_reset')
+        data = s.loads(EmailReceiver.reset_link)
+
+        assert data['username'] == 'test'
+
+
+def test_reset_password(client, app):
+    with app.app_context():
+        s = URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='auth.password_reset')
+        token = s.dumps({'username': 'test'})
+
+        assert client.get(f'/auth/reset-password/{token}').status_code == 200
+
+        client.post(f'/auth/reset-password/{token}', data={'password': 'updated', 'confirm': 'updated'})
+
+        with get_db().connect() as conn:
+            user = conn.execute(
+                text('SELECT u.password FROM user u WHERE u.username = :username;'), {'username': 'test'}).one()
+
+            assert check_password_hash(user['password'], 'updated')
+
+
+def test_reset_password_validate(client, app):
+    with app.app_context():
+        s = URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='auth.password_reset')
+        token = s.dumps({'username': 'test'})
+
+        app.config['RESETPASSWORD_LINK_LIFETIME'] = -1
+
+        response = client.post(
+            f'/auth/reset-password/{token}',
+            data={'password': 'updated', 'confirm': 'updated'},
+            follow_redirects=True
+        )
+
+        assert b'Password reset link is invalid. Please submit a new request.' in response.data
+
+        with get_db().connect() as conn:
+            user = conn.execute(
+                text('SELECT u.password FROM user u WHERE u.username = "test";')
+            ).one()
+
+            assert check_password_hash(user['password'], 'test')
 
 
 def test_edit_profile(client, auth, app):
