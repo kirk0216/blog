@@ -13,13 +13,11 @@ def test_register(client, app):
         '/auth/register',
         data={'username': 'a', 'email': 'a@test.com', 'password': 'a'}
     )
-    #assert response.headers['Location'] == '/auth/login'
-    print(response.headers)
+
+    assert response.headers['Location'] == '/auth/login'
 
     with app.app_context():
-        db = get_db()
-
-        with db.connect() as conn:
+        with get_db().connect() as conn:
             user = conn.execute(
                 text("SELECT * FROM user WHERE username = 'a';")
             ).one_or_none()
