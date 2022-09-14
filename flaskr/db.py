@@ -48,14 +48,14 @@ def create_admin(username, email, password):
 
         try:
             conn.execute(text(
-                'INSERT INTO "user" (username, email, password, "group") VALUES (:username, :email, :password, "ADMIN");'
-            ), {'username': username, 'password': generate_password_hash(password), 'email': email})
+                'INSERT INTO "user" (username, email, password, "group") VALUES (:username, :email, :password, :group);'
+            ), {'username': username, 'password': generate_password_hash(password), 'email': email, 'group': 'ADMIN'})
             conn.commit()
         except sqlalchemy.exc.IntegrityError:
             if click.confirm(f'User "{username}" already exists. Would you like to make them an admin?'):
                 conn.execute(text(
-                    'UPDATE "user" SET "group" = "ADMIN" WHERE username = :username;'
-                ), {'username': username})
+                    'UPDATE "user" SET "group" = :group WHERE username = :username;'
+                ), {'username': username, 'group': 'ADMIN'})
                 conn.commit()
 
 
