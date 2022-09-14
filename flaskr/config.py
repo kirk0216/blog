@@ -52,6 +52,7 @@ class ProductionConfig(Config):
     SECRET_KEY = os.environ.get('FLASK_SECRET_KEY')
     TEMPLATES_AUTO_RELOAD = False
     SESSION_COOKIE_SECURE = True
+    SESSION_REDIS = redis.from_url('redis://redis:6379')
 
     DATABASE_URI = 'postgresql+psycopg2://%s:%s@%s/%s'
     DB_HOST = os.environ.get('DB_HOST')
