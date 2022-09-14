@@ -53,6 +53,8 @@ def create_admin(username, email, password):
             conn.commit()
         except sqlalchemy.exc.IntegrityError:
             if click.confirm(f'User "{username}" already exists. Would you like to make them an admin?'):
+                conn.rollback()
+
                 conn.execute(text(
                     'UPDATE "user" SET "group" = :group WHERE username = :username;'
                 ), {'username': username, 'group': 'ADMIN'})
