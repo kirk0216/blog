@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, request, flash
 from sqlalchemy import text
 
 from . import bp
-from flaskr.auth.decorators import login_required, admin_required
+from flaskr.auth.decorators import login_required, required_permissions
 from flaskr.auth.forms import AuthForm
 from flaskr.blog.forms import BlogForm, CommentForm
 from flaskr.db import get_db
@@ -13,14 +13,14 @@ sections = ['users', 'posts', 'comments']
 
 @bp.route('/')
 @login_required
-@admin_required
+@required_permissions(['ADMIN'])
 def index():
     return render_template('admin/index.html', sections=sections)
 
 
 @bp.route('/users')
 @login_required
-@admin_required
+@required_permissions(['ADMIN'])
 def list_users():
     with get_db().connect() as conn:
         users = conn.execute(
@@ -32,7 +32,7 @@ def list_users():
 
 @bp.route('/users/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
-@admin_required
+@required_permissions(['ADMIN'])
 def edit_user(id: int):
     with get_db().connect() as conn:
         user = conn.execute(
@@ -60,7 +60,7 @@ def edit_user(id: int):
 
 @bp.route('/posts')
 @login_required
-@admin_required
+@required_permissions(['ADMIN'])
 def list_posts():
     with get_db().connect() as conn:
         posts = conn.execute(
@@ -75,7 +75,7 @@ def list_posts():
 
 @bp.route('/posts/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
-@admin_required
+@required_permissions(['ADMIN'])
 def edit_post(id: int):
     with get_db().connect() as conn:
         post = conn.execute(
@@ -106,7 +106,7 @@ def edit_post(id: int):
 
 @bp.route('/comments')
 @login_required
-@admin_required
+@required_permissions(['ADMIN'])
 def list_comments():
     with get_db().connect() as conn:
         comments = conn.execute(
@@ -123,7 +123,7 @@ def list_comments():
 
 @bp.route('/comments/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
-@admin_required
+@required_permissions(['ADMIN'])
 def edit_comment(id: int):
     with get_db().connect() as conn:
         comment = conn.execute(

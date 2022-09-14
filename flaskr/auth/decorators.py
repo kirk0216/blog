@@ -2,6 +2,8 @@ import functools
 
 from flask import redirect, url_for, abort, session
 
+from flaskr.auth.models import User
+
 
 def login_required(view):
     @functools.wraps(view)
@@ -16,43 +18,19 @@ def login_required(view):
     return wrapped_view
 
 
-def admin_required(view):
-    @functools.wraps(view)
-    def wrapped_view(*args, **kwargs):
-        user = session.get('user')
+def required_permissions(permissions: list[str]):
+    def decorated_function(view):
+        @functools.wraps(view)
+        def wrapped_view(*args, **kwargs):
+            user: User = session.get('user')
 
-        if user is not None:
-            if user.permissions.ADMIN:
-                return view(*args, **kwargs)
+            if user is not None:
+                for permission in permissions:
+                    if permission not in user.permissions:
+                        abort(403)
 
-        abort(403)
+            return view(*args, **kwargs)
 
-    return wrapped_view
+        return wrapped_view
 
-
-def can_post_required(view):
-    @functools.wraps(view)
-    def wrapped_view(*args, **kwargs):
-        user = session.get('user')
-
-        if user is not None:
-            if session['user'].permissions.CAN_POST:
-                return view(*args, **kwargs)
-
-        abort(403)
-
-    return wrapped_view
-
-
-def can_comment_required(view):
-    @functools.wraps(view)
-    def wrapped_view(*args, **kwargs):
-        user = session.get('user')
-
-        if user is not None:
-            if session['user'].permissions.CAN_COMMENT:
-                return view(*args, **kwargs)
-
-        abort(403)
-
-    return wrapped_view
+    return decorated_function

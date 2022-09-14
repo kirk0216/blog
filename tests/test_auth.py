@@ -54,9 +54,9 @@ def test_login(client, auth):
         assert user is not None
         assert user.id == 1
         assert user.username == 'test'
-        assert user.permissions.ADMIN
-        assert user.permissions.CAN_POST
-        assert user.permissions.CAN_COMMENT
+        assert 'ADMIN' in user.permissions
+        assert 'CAN_POST' in user.permissions
+        assert 'CAN_COMMENT' in user.permissions
 
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (

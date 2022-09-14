@@ -1,29 +1,8 @@
-class UserGroup(object):
-    ADMIN = False
-    CAN_COMMENT = False
-    CAN_POST = False
-
-
-class Reader(UserGroup):
-    CAN_COMMENT = True
-
-
-class Author(UserGroup):
-    CAN_COMMENT = True
-    CAN_POST = True
-
-
-class Admin(UserGroup):
-    ADMIN = True
-    CAN_COMMENT = True
-    CAN_POST = True
-
-
 GROUPS = {
-    'DEFAULT': UserGroup,
-    'READER': Reader,
-    'AUTHOR': Author,
-    'ADMIN': Admin
+    'DEFAULT': [],
+    'READER': ['CAN_COMMENT'],
+    'AUTHOR': ['CAN_COMMENT', 'CAN_POST'],
+    'ADMIN': ['CAN_COMMENT', 'CAN_POST', 'ADMIN']
 }
 
 
@@ -31,7 +10,7 @@ class User:
     id: int = None
     username: str = None
 
-    permissions: UserGroup = UserGroup()
+    permissions: list[str] = None
 
     def __init__(self, db_obj):
         self.id = db_obj['id']

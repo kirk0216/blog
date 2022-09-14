@@ -2,7 +2,7 @@ from flask import (session, redirect, render_template, url_for)
 from werkzeug.exceptions import abort
 from sqlalchemy import text
 
-from flaskr.auth.decorators import login_required, can_post_required
+from flaskr.auth.decorators import login_required, required_permissions
 from flaskr.db import get_db
 from flaskr.blog.comment import get_comments
 
@@ -41,7 +41,7 @@ def index():
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
-@can_post_required
+@required_permissions(['CAN_POST'])
 def create():
     form = BlogForm()
 
@@ -68,7 +68,7 @@ def view(id: int):
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
-@can_post_required
+@required_permissions(['CAN_POST'])
 def update(id: int):
     post = get_post(id)
 
@@ -89,7 +89,7 @@ def update(id: int):
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
-@can_post_required
+@required_permissions(['CAN_POST'])
 def delete(id: int):
     get_post(id)
 

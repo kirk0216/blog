@@ -36,19 +36,19 @@
                                     <a class="dropdown-item" href="{{ url_for('auth.edit_profile') }}">Edit Profile</a>
                                 </li>
 
-                                {% if session['user'].permissions.CAN_POST %}
+                                {% if 'CAN_POST' in session['user'].permissions %}
                                     <li>
                                         <a class="dropdown-item" href="{{ url_for('blog.create') }}">New Post</a>
                                     </li>
                                 {% endif %}
 
-                                {% if session['user'].permissions.ADMIN %}
+                                {% if 'ADMIN' in session['user'].permissions %}
                                     <li>
                                         <a class="dropdown-item" href="{{ url_for('admin.index') }}">Admin Panel</a>
                                     </li>
                                 {% endif %}
 
-                                {% if session['user'].permissions.ADMIN or session['user'].permissions.CAN_POST %}
+                                {% if 'ADMIN' in session['user'].permissions or 'CAN_POST' in session['user'].permissions %}
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
