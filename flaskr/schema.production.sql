@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS post (
     title TEXT NOT NULL,
     body TEXT NOT NULL,
 
-    FOREIGN KEY (author_id) REFERENCES user(id)
+    FOREIGN KEY (author_id) REFERENCES "user"(id)
 );
 
 CREATE TABLE IF NOT EXISTS comment (
@@ -26,5 +26,5 @@ CREATE TABLE IF NOT EXISTS comment (
     CONSTRAINT fk_posts
     FOREIGN KEY (post_id) REFERENCES post(id)
     ON DELETE CASCADE,
-    FOREIGN KEY (author_id) REFERENCES user(id)
+    FOREIGN KEY (author_id) REFERENCES "user"(id)
 );
