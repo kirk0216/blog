@@ -24,7 +24,7 @@ def index():
 def list_users():
     with get_db().connect() as conn:
         users = conn.execute(
-            text('SELECT u.id, u.username FROM user u;')
+            text('SELECT u.id, u.username FROM "user" u;')
         ).all()
 
     return render_template('admin/user_list.html', users=users)
@@ -36,7 +36,7 @@ def list_users():
 def edit_user(id: int):
     with get_db().connect() as conn:
         user = conn.execute(
-            text('SELECT u.id, u.username FROM user u WHERE u.id = :id;'),
+            text('SELECT u.id, u.username FROM "user" u WHERE u.id = :id;'),
             {'id': id}
         ).one_or_none()
 
@@ -46,7 +46,7 @@ def edit_user(id: int):
         if form.validate_on_submit():
             try:
                 conn.execute(
-                    text('UPDATE user SET username=:username WHERE id = :id;'),
+                    text('UPDATE "user" SET username=:username WHERE id = :id;'),
                     {'username': form.username.data, 'id': id}
                 )
                 conn.commit()
@@ -66,7 +66,7 @@ def list_posts():
         posts = conn.execute(
             text(
                 'SELECT p.id, p.author_id, p.created, p.title, p.body, u.username as "author" FROM post p '
-                'JOIN user u ON u.id = p.author_id;'
+                'JOIN "user" u ON u.id = p.author_id;'
             )
         ).all()
 
@@ -81,7 +81,7 @@ def edit_post(id: int):
         post = conn.execute(
             text(
                 'SELECT p.id, p.author_id, p.created, p.title, p.body, u.username as "author" FROM post p '
-                'JOIN user u ON u.id = p.author_id '
+                'JOIN "user" u ON u.id = p.author_id '
                 'WHERE p.id = :id;'
             ),
             {'id': id}
@@ -114,7 +114,7 @@ def list_comments():
                 'SELECT c.id, c.post_id, c.author_id, c.created, '
                 'u.username AS "author", p.title AS "post_title" FROM comment c '
                 'JOIN post p ON p.id = c.post_id '
-                'JOIN user u ON u.id = c.author_id;'
+                'JOIN "user" u ON u.id = c.author_id;'
             )
         ).all()
 
