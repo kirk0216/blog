@@ -10,9 +10,10 @@ class Config:
 
     SESSION_TYPE = 'redis'
     SESSION_USE_SIGNER = True
-    SESSION_PERMANENT = False
+    SESSION_PERMANENT = True
     SESSION_REDIS = redis.from_url('redis://localhost:6379')
 
+    SESSION_COOKIE_NAME = 'blog'
     SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'

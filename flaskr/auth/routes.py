@@ -57,8 +57,6 @@ def login():
             error = 'Incorrect password.'
 
         if error is None:
-            session.clear()
-
             session['user'] = User(user)
 
             return redirect(url_for('index'))
