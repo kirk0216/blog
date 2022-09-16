@@ -23,6 +23,10 @@
 
             {{ form.password.label }}
             {{ form.password(class_='form-control') }}
+
+            {% if form.redirect.data %}
+                {{ form.redirect() }}
+            {% endif %}
         </div>
 
         <div class="d-grid gap-2 mt-3">

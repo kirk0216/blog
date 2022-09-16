@@ -3,7 +3,7 @@ from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import text
 from werkzeug.security import check_password_hash
 
-from flask import session
+from flask import request, session
 
 from flaskr.db import get_db
 
@@ -43,12 +43,12 @@ def test_register_validate_input(client, username, password, confirm, email, mes
 
 
 def test_login(client, auth):
-    assert client.get('/auth/login').status_code == 200
-
-    response = auth.login()
-    assert response.headers['Location'] == '/'
-
     with client:
+        assert client.get('/auth/login').status_code == 200
+
+        response = auth.login()
+        assert response.request.path == '/'
+
         client.get('/')
 
         user = session.get('user')
@@ -67,6 +67,17 @@ def test_login(client, auth):
 def test_login_validate_input(auth, username, password, message):
     response = auth.login(username, password)
     assert message in response.data
+
+
+def test_login_redirects(auth, app, client):
+    with client:
+        response = client.get('/user/1', follow_redirects=True)
+        assert request.path == '/auth/login'
+        assert b'id="redirect" name="redirect" type="hidden" value="/user/1/"' in response.data
+
+        response = auth.login(redirect='/user/1')
+        assert request.path == '/user/1/'
+        assert b'test\'s Profile' in response.data
 
 
 def test_logout(client, auth):

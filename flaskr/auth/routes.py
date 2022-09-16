@@ -43,6 +43,9 @@ def register():
 def login():
     form = LoginForm()
 
+    if 'login_redirect' in session:
+        form.redirect.data = session.pop('login_redirect')
+
     if form.validate_on_submit():
         error = None
 
@@ -58,6 +61,9 @@ def login():
 
         if error is None:
             session['user'] = User(user)
+
+            if form.redirect.data:
+                return redirect(form.redirect.data)
 
             return redirect(url_for('index'))
 

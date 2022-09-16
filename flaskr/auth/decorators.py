@@ -1,6 +1,6 @@
 import functools
 
-from flask import redirect, url_for, abort, session
+from flask import abort, redirect, request, session, url_for
 
 from flaskr.auth.models import User
 
@@ -11,6 +11,7 @@ def login_required(view):
         user = session.get('user')
 
         if user is None:
+            session['login_redirect'] = request.path
             return redirect(url_for('auth.login'))
 
         return view(*args, **kwargs)
