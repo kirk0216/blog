@@ -8,7 +8,7 @@
     <article>
         {% if form.errors %}
             {% import 'form-error.html' as errors %}
-            {% for element in [form.username] %}
+            {% for element in [form.username, form.email] %}
                 {% for error in element.errors %}
                     {{ errors.alert(element, error) }}
                 {% endfor %}
@@ -18,6 +18,9 @@
         <form method="post" accept-charset="{{ url_for('admin.edit_user', id=user_id) }}" class="row py-2">
             {{ form.username.label }}
             {{ form.username(class_='form-control') }}
+
+            {{ form.email.label }}
+            {{ form.email(class_='form-control') }}
 
             {{ form.csrf_token }}
 

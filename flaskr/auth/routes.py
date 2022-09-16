@@ -15,7 +15,7 @@ from flaskr.db import get_db
 from . import bp
 from .decorators import login_required
 from .models import User
-from .forms import AuthForm, EditProfileForm, RegisterForm, ResetPasswordForm
+from .forms import EditProfileForm, ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -41,7 +41,7 @@ def register():
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
-    form = AuthForm()
+    form = LoginForm()
 
     if form.validate_on_submit():
         error = None
@@ -74,8 +74,7 @@ def logout():
 
 @bp.route('/forgot-password', methods=('GET', 'POST'))
 def forgot_password():
-    form = AuthForm()
-    del form.password
+    form = ForgotPasswordForm()
 
     if form.validate_on_submit():
         with get_db().connect() as conn:

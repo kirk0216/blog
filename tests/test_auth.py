@@ -13,7 +13,7 @@ def test_register(client, app):
 
     response = client.post(
         '/auth/register',
-        data={'username': 'a', 'email': 'a@test.com', 'password': 'a'}
+        data={'username': 'a', 'email': 'a@test.com', 'password': 'a', 'confirm': 'a'}
     )
 
     assert response.headers['Location'] == '/auth/login'
@@ -28,15 +28,16 @@ def test_register(client, app):
             assert user['group'] == 'READER'
 
 
-@pytest.mark.parametrize(('username', 'password', 'email', 'message'), (
-        ('', '', '', b'Username: This field is required.'),
-        ('a', '', '', b'Password: This field is required.'),
-        ('test', 'test', 'test@test.com', b'is already registered.')
+@pytest.mark.parametrize(('username', 'password', 'confirm', 'email', 'message'), (
+        ('', '', '', '', b'Username: This field is required.'),
+        ('a', '', '', '', b'Password: This field is required.'),
+        ('test', 'test', 'test', 'test@test.com', b'is already registered.'),
+        ('a', 'password', 'nomatch', 'test@test.com', b'Passwords must match')
 ))
-def test_register_validate_input(client, username, password, email, message):
+def test_register_validate_input(client, username, password, confirm, email, message):
     response = client.post(
         '/auth/register',
-        data={'username': username, 'email': email, 'password': password}
+        data={'username': username, 'email': email, 'password': password, 'confirm': confirm}
     )
     assert message in response.data
 

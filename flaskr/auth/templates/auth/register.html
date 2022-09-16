@@ -7,7 +7,7 @@
 {% block content %}
     {% if form.errors %}
         {% import 'form-error.html' as errors %}
-        {% for element in [form.username, form.password, form.email] %}
+        {% for element in [form.username, form.password, form.confirm, form.email] %}
             {% for error in element.errors %}
                 {{ errors.alert(element, error) }}
             {% endfor %}
@@ -25,6 +25,9 @@
 
         {{ form.password.label }}
         {{ form.password(class_='form-control') }}
+
+        {{ form.confirm.label }}
+        {{ form.confirm(class_='form-control') }}
 
         <input type="submit" value="Register" class="btn btn-primary mt-3">
     </form>

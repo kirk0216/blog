@@ -3,8 +3,8 @@ from flask import render_template, redirect, url_for, request, flash
 from sqlalchemy import text
 
 from . import bp
+from flaskr.admin.forms import EditUserForm
 from flaskr.auth.decorators import login_required, required_permissions
-from flaskr.auth.forms import AuthForm
 from flaskr.blog.forms import BlogForm, CommentForm
 from flaskr.db import get_db
 
@@ -36,18 +36,17 @@ def list_users():
 def edit_user(id: int):
     with get_db().connect() as conn:
         user = conn.execute(
-            text('SELECT u.id, u.username FROM "user" u WHERE u.id = :id;'),
+            text('SELECT u.id, u.username, u.email FROM "user" u WHERE u.id = :id;'),
             {'id': id}
         ).one_or_none()
 
-        form = AuthForm(obj=user)
-        del form.password
+        form = EditUserForm(obj=user)
 
         if form.validate_on_submit():
             try:
                 conn.execute(
-                    text('UPDATE "user" SET username=:username WHERE id = :id;'),
-                    {'username': form.username.data, 'id': id}
+                    text('UPDATE "user" SET username=:username, email=:email WHERE id = :id;'),
+                    {'username': form.username.data, 'email': form.email.data, 'id': id}
                 )
                 conn.commit()
             except sqlalchemy.exc.IntegrityError:
