@@ -66,5 +66,6 @@ jobs:
         - name: Deploy to Linode
           env:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-          run: scp -o StrictHostKeyChecking=no -r ./python-app/* ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }}:${{ secrets.LINODE_DESTINATION }}
-
+          run: |
+            scp -o StrictHostKeyChecking=no -r ./python-app/* ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }}:${{ secrets.LINODE_DESTINATION }}
+            docker container restart blog

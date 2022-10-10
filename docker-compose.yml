@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  blog:
+    container_name: blog
+    build: ./python
+    restart: always
+    expose:
+      - "5050"
+    depends_on:
+      - database
+    volumes:
+      - ./python:/app
+    env_file:
+      - ./python/.env
+
+  nginx:
+    container_name: blog_nginx
+    build: ./nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - blog
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt/:ro
+      - /var/www/html:/var/www/html/:ro
+
+  database:
+    container_name: blog_database
+    image: postgres:alpine
+    restart: always
+    volumes:
+      - ./python/schema.production.sql:/docker-entrypoint-initdb.d/init.sql
+      - blog_data:/var/lib/postgresql/database
+    expose:
+      - "5432"
+    env_file:
+      - database.env
+  
+volumes:
+  blog_data:

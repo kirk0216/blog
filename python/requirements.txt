@@ -9,8 +9,8 @@ Deprecated==1.2.13
 Flask==2.2.2
 flask-session2==1.3.1
 Flask-WTF==1.0.1
--e git+https://github.com/kirk0216/blog.git@a48cb34832ce3f71390675a7fe1c6e0d3036f336#egg=flaskr
 greenlet==1.1.3
+gunicorn==20.1.0
 iniconfig==1.1.1
 itsdangerous==2.1.2
 Jinja2==3.1.2
