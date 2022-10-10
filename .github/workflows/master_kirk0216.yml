@@ -69,6 +69,6 @@ jobs:
           env:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           run: |
-            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER}}@{{ secrets.LINODE_UP }} docker-compose down
+            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} docker-compose down
             scp -o StrictHostKeyChecking=no -r ./python-app/* ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }}:${{ secrets.LINODE_DESTINATION }}
-            ssh -o StrictHostKeyChecking=no docker-compose up -d --build
+            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} docker-compose up -d --build
