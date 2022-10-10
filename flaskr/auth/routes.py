@@ -85,7 +85,7 @@ def forgot_password():
     if form.validate_on_submit():
         with get_db().connect() as conn:
             user = conn.execute(
-                text('SELECT u.username, u.email FROM user u WHERE username = :username;'),
+                text('SELECT u.username, u.email FROM "user" u WHERE username = :username;'),
                 {'username': form.username.data}
             ).one_or_none()
 
@@ -133,7 +133,7 @@ def reset_password(token):
             return redirect(url_for('auth.forgot_password'))
 
         with get_db().connect() as conn:
-            conn.execute(text('UPDATE user SET password = :password WHERE username = :username;'),
+            conn.execute(text('UPDATE "user" SET password = :password WHERE username = :username;'),
                          {'password': generate_password_hash(form.password.data), 'username': result['username']})
             conn.commit()
 
@@ -150,7 +150,7 @@ def edit_profile():
     if form.validate_on_submit():
         with get_db().connect() as conn:
             conn.execute(
-                text('UPDATE user SET email = :email, password = :password WHERE id = :id;'),
+                text('UPDATE "user" SET email = :email, password = :password WHERE id = :id;'),
                 {'email': form.email.data, 'password': generate_password_hash(form.password.data), 'id': session['user'].id})
             conn.commit()
 
