@@ -39,5 +39,15 @@ services:
     env_file:
       - database.env
   
+  redis:
+    container_name: blog_redis
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis:/data
+    expose:
+      - "6379"
+
 volumes:
   blog_data:
+  redis:
