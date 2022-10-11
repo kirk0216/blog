@@ -72,10 +72,14 @@ jobs:
 
         - name: Restart containers
           uses: appleboy/ssh-action@master
+          env:
+            DESTINATION: ${{ secrets.LINODE_DESTINATION }}
           with:
             host: ${{ secrets.LINODE_IP }}
             username: ${{ secrets.LINODE_USER }}
             key: ${{ secrets.PRIVATE_KEY }}
+            envs: DESTINATION
             script: |
+              cd $DESTINATION
               docker-compose down
               docker-compose up -d --build
