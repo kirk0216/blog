@@ -65,17 +65,17 @@ jobs:
             name: python-app
             path: python-app
 
-        - name: Stop containers
-          env:
-            SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-          run: ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose down'
-
-        - name: Copy files
+        - name: Copy files to Linode
           env:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           run: scp -o StrictHostKeyChecking=no -r ./python-app/* ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }}:${{ secrets.LINODE_DESTINATION }}
 
-        - name: Start containers
-          env:
-            SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-          run: ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose up -d --build'
+        - name: Restart containers
+          uses: appleboy/ssh-action@master
+          with:
+            host: ${{ secrets.LINODE_IP }}
+            username: ${{ secrets.LINODE_USER }}
+            key: ${{ secrets.PRIVATE_KEY }}
+            script: |
+              docker-compose down
+              docker-compose up -d --build
