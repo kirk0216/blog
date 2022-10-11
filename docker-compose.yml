@@ -5,8 +5,8 @@ services:
     container_name: blog
     build: ./python
     restart: always
-    expose:
-      - "5050"
+    ports:
+      - "127.0.0.1:5050:5050"
     depends_on:
       - database
       - redis
