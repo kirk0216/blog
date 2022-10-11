@@ -64,11 +64,12 @@ jobs:
           with:
             name: python-app
             path: python-app
-            
-        - name: Deploy to Linode
-          env:
-            SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-          run: |
-            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose down'
-            scp -o StrictHostKeyChecking=no -r ./python-app/* ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }}:${{ secrets.LINODE_DESTINATION }}
-            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose up -d --build'
+
+        - name: Stop containers
+          run: ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose down'
+
+        - name: Copy files
+          run: scp -o StrictHostKeyChecking=no -r ./python-app/* ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }}:${{ secrets.LINODE_DESTINATION }}
+
+        - name: Start containers
+          run: ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose up -d --build'
