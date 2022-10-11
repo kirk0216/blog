@@ -75,5 +75,4 @@ jobs:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           run: |
             cd ${{ secrets.LINODE_DESTINATION }}
-            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose down'
-            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose up -d --build'
+            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'cd ${{ secrets.LINODE_DESTINATION }} && docker-compose down && docker-compose up -d --build'
