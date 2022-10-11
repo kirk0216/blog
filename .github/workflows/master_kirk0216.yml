@@ -71,15 +71,9 @@ jobs:
           run: scp -o StrictHostKeyChecking=no -r ./python-app/* ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }}:${{ secrets.LINODE_DESTINATION }}
 
         - name: Restart containers
-          uses: appleboy/ssh-action@master
           env:
-            DESTINATION: ${{ secrets.LINODE_DESTINATION }}
-          with:
-            host: ${{ secrets.LINODE_IP }}
-            username: ${{ secrets.LINODE_USER }}
-            key: ${{ secrets.PRIVATE_KEY }}
-            envs: DESTINATION
-            script: |
-              cd $DESTINATION
-              docker-compose down
-              docker-compose up -d --build
+            SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          run: |
+            cd ${{ secrets.LINODE_DESTINATION }}
+            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose down'
+            ssh -o StrictHostKeyChecking=no ${{ secrets.LINODE_USER }}@${{ secrets.LINODE_IP }} 'docker-compose up -d --build'
